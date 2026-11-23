@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Madi Prestadores</title>
+<title>Provider Payments</title>
 <meta name="robots" content="noindex">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="https://moussa-assi.github.io/madi-hr/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Prestadores">
+<meta name="apple-mobile-web-app-title" content="Provider Payments">
 <meta name="theme-color" content="#1F3864">
 <style>
 :root{--bg:#f5f6f8;--panel:#fff;--ink:#1d2330;--mute:#6b7280;--line:#e5e7eb;--band:#1F3864;--band2:#2f5597;--acc:#c5221f;--ok:#1e8e3e;--warn:#b06000;--info:#1967d2;--soft:#eef2f8}
@@ -74,6 +74,7 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--soft)}
 #login h2{margin:0 0 4px;color:#1F3864;font-size:20px}#login p{margin:0 0 18px;color:#6b7280;font-size:13px}
 #login label{display:block;font-size:13px;color:#374151;margin-bottom:12px}#login input{width:100%;margin-top:4px;padding:10px;border:1px solid #d1d5db;border-radius:8px;font-size:16px}
 #login button{width:100%;background:#1F3864;color:#fff;border:0;border-radius:8px;padding:11px;font-weight:700;font-size:15px;cursor:pointer}#login .e{color:#c5221f;font-size:13px;min-height:18px;margin-bottom:6px}
+.lang{display:flex;border:1px solid rgba(255,255,255,.5);border-radius:8px;overflow:hidden}.lang button{background:none;border:0;color:#fff;padding:8px 11px;cursor:pointer;font-weight:700;min-height:40px}.lang button.on{background:#fff;color:#1F3864}
 .empty{padding:28px;text-align:center;color:var(--mute)}
 .flag{color:var(--acc);font-weight:700;font-size:12px}
 /* drawer */
@@ -121,7 +122,8 @@ textarea{min-height:70px;resize:vertical}
 <body>
 <div class="band">
   <div class="top">
-    <h1>Madi Prestadores<small id="who">Controlo de pagamentos a prestadores de serviços</small></h1>
+    <h1>Pagamentos a Prestadores<small id="who">Madi Group</small></h1>
+    <div class="lang"><button data-act="setLang" data-l="pt">PT</button><button data-act="setLang" data-l="en">EN</button></div>
     <input class="search" id="q" type="search" placeholder="Procurar talão, fatura, matrícula, projeto…" autocomplete="off">
     <button class="btn pri" id="newBtn">+ Novo</button>
     <button class="btn ghost" id="expBtn">Exportar Excel</button>
@@ -143,12 +145,124 @@ textarea{min-height:70px;resize:vertical}
 <div class="modal" id="modal"><p id="mText"></p><div style="display:flex;gap:8px;justify-content:flex-end" id="mBtns"></div></div>
 <div class="toast" id="toast"></div>
 <input type="file" id="fileIn" multiple accept="image/*,application/pdf" hidden>
-<div id="login" style="display:none"><div class="box"><h2>Madi Prestadores</h2><p>Controlo de pagamentos a prestadores</p>
+<input type="file" id="xlsIn" accept=".xlsx,.xls,.xlsm,.csv" hidden>
+<div id="login" style="display:none"><div class="box"><h2>Pagamentos a Prestadores</h2><p>Madi Group</p>
 <form id="lgf"><label>Email<input id="lg_e" type="email" autocomplete="username" required></label><label>Palavra-passe<input id="lg_p" type="password" autocomplete="current-password" required></label><div class="e" id="lg_err"></div><button id="lg_b">Entrar</button></form></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 
 <script>
 {
+/* ---------- languages (EN / PT) — one switch, the screen shows one language only ---------- */
+const LANG=(()=>{try{return localStorage.getItem('pp_lang')||'en'}catch{return'en'}})();
+const EN={
+'Pagamentos a Prestadores':'Provider Payments','Painel':'Dashboard','Procurar talão, fatura, matrícula, projeto…':'Search slip, invoice, plate, project…','+ Novo':'+ New','Exportar Excel':'Export Excel','Definições':'Settings','Sair':'Sign out','Entrar':'Sign in','Palavra-passe':'Password','A carregar…':'Loading…',
+'em dia':'up to date','adicionar':'add','O que precisa de atenção':'What needs attention','Saldo por prestador':'Balance by provider','Prestador':'Provider','Em dívida':'Owed','Não faturado':'Not invoiced','Faturado vs pago · 12 meses':'Invoiced vs paid · 12 months',
+'Barra clara = faturado no mês · parte escura = pago no mesmo mês.':'Light bar = invoiced in the month · dark part = paid in the same month.','Últimos registos':'Latest activity','Ainda sem atividade.':'No activity yet.','Sem alertas. Tudo confere.':'No alerts. Everything matches.',
+'Total em dívida':'Total owed','Vencido':'Overdue','Recebido mas ainda não faturado':'Received but not invoiced yet','Pago este mês':'Paid this month','Tudo pago':'All paid','Resolver agora':'Resolve now',
+'Saldo em dívida':'Balance owed','Faturas abertas':'Open invoices','Faturas':'Invoices','Pagamentos':'Payments','Conta corrente':'Account statement','Tabela de preços':'Price table','Itens & preços':'Items & prices','Ficha':'Profile','Importar Excel':'Import Excel','+ Fatura':'+ Invoice','+ Pagamento':'+ Payment','+ Prestador':'+ Provider','+ Preço':'+ Price','+ Linha':'+ Line','+ Estrada':'+ Road fee','+ Anexar':'+ Attach',
+'Estado: todos':'Status: all','Pagamento: todos':'Payment: all','Mês: todos':'Month: all','Data':'Date','Descrição':'Description','descrição':'description','Valor':'Amount','Tabela':'Table','Estado':'Status','Pagamento':'Payment','Talão / ref':'Slip / ref','Ref':'Ref','Nº':'No.','Vence':'Due','Empresa':'Company','Total':'Total','Pago':'Paid','Saldo':'Balance','Fatura':'Invoice','Método':'Method','Referência':'Reference','Movimento':'Entry','Débito':'Debit','Crédito':'Credit',
+'Exportar extrato (Excel)':'Export statement (Excel)','Compare este extrato com o que o prestador envia.':'Compare this statement with the one the provider sends.','Sem movimentos.':'No entries.','Sem faturas registadas.':'No invoices recorded.','Sem pagamentos registados.':'No payments recorded.','por conta':'on account',
+'Tabela acordada por rota':'Agreed price table by route','Preços acordados':'Agreed prices','Rota':'Route','Item':'Item','Unidade':'Unit','Preço':'Price','Válido desde':'Valid from','em vigor':'current','antigo':'old','Editar':'Edit',
+'Sem tabela. Adicione os preços acordados para o sistema conferir cada cobrança.':'No table yet. Add the agreed prices so the system can check every charge.',
+'Quando o preço muda, adicione uma nova linha com a nova data — os talões antigos continuam a ser conferidos com o preço antigo.':'When a price changes, add a new line with the new date — older slips are still checked against the old price.',
+'Histórico de preços cobrados':'History of prices charged','Vezes':'Times','Mínimo':'Lowest','Máximo':'Highest','Último':'Last','Aparece aqui automaticamente à medida que regista linhas com preço.':'Fills in automatically as you record priced lines.',
+'Ficha do prestador':'Provider profile','Nome':'Name','Categoria':'Category','NUIT':'NUIT','Telefone':'Phone','Email':'Email','Morada':'Address','Prazo de pagamento':'Payment terms','Adiantamento':'Advance','Dados bancários':'Bank details','% por província':'% by province','Notas':'Notes','Documentos':'Documents','Sem alertas para este prestador.':'No alerts for this provider.',
+'Transporte':'Transport','Publicidade & gráfica':'Branding & print','Oficina / viaturas':'Workshop / vehicles','Suporte técnico':'Technical support','Subscrição / software':'Subscription / software','Transporte Shoprite (%)':'Shoprite transport (%)',
+'Envio / talão':'Shipment / slip','Envios':'Shipments','Projeto':'Project','Projetos':'Projects','Reparação':'Repair','Reparações':'Repairs','Serviço':'Service','Serviços':'Services','Mensalidade':'Monthly fee','Mensalidades':'Monthly fees','Envio Shoprite':'Shoprite shipment','Envios Shoprite':'Shoprite shipments',
+'A preparar':'Preparing','A caminho':'In transit','Chegou':'Arrived','Problema':'Problem','Pedido':'Requested','Cotação recebida':'Quote received','Aprovado':'Approved','Em produção':'In production','Pronto':'Ready','Entregue / instalado':'Delivered / installed','Concluído ✓':'Completed ✓','Na oficina':'At the workshop','Em reparação':'Being repaired','Entregue':'Delivered','Em curso':'In progress','Concluído':'Completed','Pendente':'Pending','Serviço recebido':'Service received',
+'Por pagar':'Unpaid','Parcial':'Partly paid',
+'Solto':'Loose','Contentor 20"':'Container 20"','Contentor 40"':'Container 40"','Camião':'Truck','Viatura':'Vehicle','Loja':'Shop','Cliente':'Client','Evento':'Event','Escritório':'Office','Outro':'Other',
+'Transferência':'Bank transfer','Cheque':'Cheque','Numerário':'Cash','Compensação':'Offset',
+'Estado':'Status','Dados':'Details','Empresa (Madi Group)':'Company (Madi Group)','Por confirmar (CHECK)':'To confirm (CHECK)','Linhas':'Lines','Outros custos (opcional)':'Other costs (optional)','Qtd':'Qty','qtd':'qty','Preço unit.':'Unit price','preço unit.':'unit price','— item da tabela —':'— table item —',
+'Ficheiros (talão, foto, cotação, fatura, guia)':'Files (slip, photo, quote, invoice, delivery note)','Sem ficheiros.':'No files.','remover':'remove','Cancelar':'Cancel','Guardar':'Save','Apagar':'Delete','Fechar':'Close','Confirmar':'Confirm','Registar':'Record','Continuar':'Continue',
+'Talão / Nr entrada':'Slip / entry no.','Referência (R/M/B)':'Reference (R/M/B)','Origem':'Origin','Destino':'Destination','Fornecedor da mercadoria':'Goods supplier','Cliente / armazém destino':'Client / destination warehouse','Carga':'Load',
+'Projeto / pedido':'Project / request','Onde':'Where','Local / detalhe':'Location / detail','Pedido por':'Requested by','Nº cotação / VD':'Quote / VD no.','Prazo de entrega':'Delivery deadline',
+'Viatura (matrícula)':'Vehicle (plate)','Km':'Km','Trabalho feito':'Work done','Local / loja':'Location / shop','Garantia até':'Warranty until','Mês':'Month','Fatura Shoprite nº':'Shoprite invoice no.','Província':'Province','Valor da fatura Shoprite (MT)':'Shoprite invoice amount (MT)','% do transportador':'Carrier %',
+'Colar linhas da fatura':'Paste invoice lines','Conferir a fatura: copie as linhas do Excel do prestador e cole aqui. O sistema liga cada linha ao talão registado e mostra o que não bate.':'Check the invoice: copy the lines from the provider\'s Excel and paste them here. The system links each line to the recorded slip and shows what doesn\'t match.',
+'Copie as linhas do Excel do prestador e cole aqui':'Copy the lines from the provider\'s Excel and paste them here','Conferir':'Check','Conferência da fatura':'Invoice check','confere':'matches','valor diferente':'different amount','sem registo':'not recorded','sem talão':'no slip','Talão':'Slip','Linha na fatura':'Invoice line','Registado':'Recorded',
+'Os talões que conferem ficaram marcados abaixo. Verifique e guarde.':'Matching slips are ticked below. Check and save.',
+'Nº da fatura':'Invoice no.','Vencimento':'Due date','Empresa que paga':'Paying company','Subtotal (MT)':'Subtotal (MT)','Desconto (MT)':'Discount (MT)','IVA %':'VAT %','Marcar todos por faturar':'Tick all not invoiced','Subtotal = soma':'Subtotal = sum','✓ confere com subtotal':'✓ matches the subtotal','Pagamentos desta fatura':'Payments on this invoice','Nenhum.':'None.','Ficheiros (fatura, extrato)':'Files (invoice, statement)','Sem movimentos por faturar deste prestador.':'No entries waiting to be invoiced for this provider.',
+'Data do pagamento':'Payment date','Valor (MT)':'Amount (MT)','Referência / nº cheque / transação':'Reference / cheque / transaction no.','Pago por (empresa)':'Paid by (company)','Comprovativo':'Proof of payment',
+'Prazo de pagamento (dias)':'Payment terms (days)','Adiantamento % (ex.: 70)':'Advance % (e.g. 70)','Empresa que normalmente paga':'Company that usually pays','Ordem nas abas':'Tab order','Dados bancários (para pagar)':'Bank details (for paying)','% por província (uma por linha, ex.: Sofala = 5)':'% by province (one per line, e.g. Sofala = 5)','Notas / contrato':'Notes / contract','Contrato e documentos':'Contract and documents','Novo prestador':'New provider',
+'Preço acordado':'Agreed price','Rota (ex.: MPT-NPL)':'Route (e.g. MPT-NPL)','Item (ex.: BOLACHA, CX GR)':'Item (e.g. BOLACHA, CX GR)','por caixa / unidade':'per box / unit','por viagem (fixo)':'per trip (fixed)','por volume':'per volume','por saco':'per bag','por mês':'per month','por serviço':'per service','Preço (MT)':'Price (MT)','Nota (ex.: volumes 450–750)':'Note (e.g. volumes 450–750)',
+'Para mudar um preço, crie uma linha nova com a nova data em vez de editar a antiga — assim o histórico fica certo.':'To change a price, add a new line with the new date instead of editing the old one — that keeps the history right.','Tabela antiga':'Old table',
+'Empresas do grupo (uma por linha)':'Group companies (one per line)','Viaturas (uma matrícula por linha)':'Vehicles (one plate per line)','Armazenamento de ficheiros':'File storage',
+'Os dados ficam no Supabase (Sistema RH Madi, tabelas próprias “prest_”). O plano gratuito não faz cópias automáticas: use “Exportar Excel” uma vez por semana.':'Data is kept in Supabase (Sistema RH Madi project, separate “prest_” tables). The free plan has no automatic backups: use “Export Excel” once a week.',
+'Novo registo':'New entry','+ Movimento (talão, projeto, reparação…)':'+ Entry (slip, project, repair…)','+ Fatura / extrato':'+ Invoice / statement','Movimentos':'Entries','Nada.':'Nothing.',
+'Escolha o ficheiro Excel do prestador (fatura, extrato ou lista de talões). O sistema reconhece as colunas; confirme abaixo e importe — sem escrever nada.':'Choose the provider\'s Excel file (invoice, statement or list of slips). The system recognises the columns; confirm below and import — no typing.',
+'Escolher ficheiro Excel':'Choose Excel file','Folha':'Sheet','Linha dos títulos (nº)':'Header row (no.)','Estado dos registos':'Status of the entries','Colunas reconhecidas':'Recognised columns','Talão / Nº':'Slip / No.','Rota / destino':'Route / destination','Quantidade':'Quantity','Preço unitário':'Unit price','Criar também a fatura com estes registos':'Also create the invoice with these entries','Data da fatura':'Invoice date','Pré-visualização':'Preview','Importar':'Import','A importar…':'Importing…','Linhas':'Lines',
+'Administrador':'Administrator','Edição':'Editor','Só leitura':'View only','Madi Group':'Madi Group',
+'Apagado':'Deleted','Escolha o prestador':'Choose the provider','Fatura conferida':'Invoice checked','Fatura guardada':'Invoice saved','Guardado':'Saved','Indique o nome':'Enter the name','Indique o nº da fatura':'Enter the invoice number','Indique o valor':'Enter the amount','Item e preço são obrigatórios':'Item and price are required','Não encontrei linhas com talão ou valor':'No lines with a slip or amount were found','Pagamento guardado':'Payment saved','Sem permissão':'No permission','Só o administrador pode apagar':'Only the administrator can delete','Só o administrador':'Administrator only','Sem permissão para esta ação':'You don\'t have permission for this action',
+'Email ou palavra-passe errados':'Wrong email or password','Esta conta não tem acesso ao sistema de Prestadores.':'This account has no access to Provider Payments.',
+'Maputo Cidade':'Maputo City','Maputo Província':'Maputo Province','OUTRO':'OTHER'};
+const RX=[
+[/^Deve (.+) a (\d+) prestador(es)?$/,m=>`You owe ${m[1]} to ${m[2]} provider${m[2]==='1'?'':'s'}`],
+[/^(\d+) pontos? críticos? · (\d+) alertas no total$/,m=>`${m[1]} critical · ${m[2]} alerts in total`],
+[/^(\d+) ponto crítico · (\d+) alertas no total$/,m=>`${m[1]} critical · ${m[2]} alerts in total`],
+[/^(.+) em dívida$/,m=>`${m[1]} owed`],
+[/^(\d+) registos · (.+)$/,m=>`${m[1]} entries · ${tr(m[2])}`],
+[/^(.+) já existem \(ignorados\)$/,m=>`${m[1]} already exist (skipped)`],
+[/^(\d+) movimento\(s\)$/,m=>`${m[1]} entr${m[1]==='1'?'y':'ies'}`],
+[/^(\d+) fatura\(s\) aberta\(s\)$/,m=>`${m[1]} open invoice(s)`],
+[/^(\d+) ficheiro\(s\)$/,m=>`${m[1]} file(s)`],
+[/^Alertas \((\d+)\)$/,m=>`Alerts (${m[1]})`],
+[/^Pago em (\d{4})$/,m=>`Paid in ${m[1]}`],
+[/^Total: (.+)$/,m=>`Total: ${m[1]}`],[/^Tabela: (.+?)( \(diferença (.+)\)| ✓ confere)?$/,m=>`Table: ${m[1]}${m[3]?` (difference ${m[3]})`:m[2]?' ✓ matches':''}`],
+[/^tabela (.+)$/,m=>`table ${m[1]}`],[/^Soma marcada: (.+)$/,m=>`Ticked total: ${m[1]}`],[/^Diferença vs subtotal: (.+)$/,m=>`Difference vs subtotal: ${m[1]}`],
+[/^Pago (.+)$/,m=>`Paid ${m[1]}`],[/^Saldo (.+)$/,m=>`Balance ${m[1]}`],[/^(.+) · saldo (.+)$/,m=>`${m[1]} · balance ${m[2]}`],
+[/^(.+) (nesta fatura|não faturados)$/,m=>`${tr(m[1])} ${m[2]==='nesta fatura'?'on this invoice':'not invoiced'}`],
+[/^Sem (.+) ainda\. Use “\+ (.+)”\.$/,m=>`No ${tr(m[1][0].toUpperCase()+m[1].slice(1)).toLowerCase()} yet. Use “+ ${tr(m[2])}”.`],
+[/^Sem (.+) com estes filtros\.? Use “\+ (.+)”\.$/,m=>`No ${tr(m[1][0].toUpperCase()+m[1].slice(1)).toLowerCase()} with these filters.`],
+[/^Resultados para “(.+)”$/,m=>`Results for “${m[1]}”`],
+[/^(\d{4}-\d{2}): faturado (.+), pago (.+)$/,m=>`${m[1]}: invoiced ${m[2]}, paid ${m[3]}`],
+[/^(\d+) ficheiros · (.+) MB de 1 024 MB \(plano gratuito, partilhado com o Sistema RH\)\.$/,m=>`${m[1]} files · ${m[2]} MB of 1,024 MB (free plan, shared with the HR system).`],
+[/^(\d+) linhas lidas$/,m=>`${m[1]} lines read`],
+[/^(\d+) conferem · (\d+) com valor diferente · (\d+) sem talão registado · (\d+) talões registados que a fatura não inclui$/,m=>`${m[1]} match · ${m[2]} different amount · ${m[3]} slip not recorded · ${m[4]} recorded slips not on the invoice`],
+[/^(\d+) conferem ·$/,m=>`${m[1]} match ·`],[/^(\d+) com valor diferente$/,m=>`${m[1]} different amount`],[/^(\d+) sem talão registado$/,m=>`${m[1]} slip not recorded`],[/^· (\d+) talões registados que a fatura não inclui$/,m=>`· ${m[1]} recorded slips not on the invoice`],
+[/^Registados mas fora desta fatura: (.+)$/,m=>`Recorded but not on this invoice: ${m[1]}`],
+[/^Condição: (\d+)% na confirmação \((.+)\) e (\d+)% na entrega \((.+)\)\.$/,m=>`Terms: ${m[1]}% on confirmation (${m[2]}) and ${m[3]}% on delivery (${m[4]}).`],
+[/^(.+) — (\d{2}\/\d{2}\/\d{4})$/,m=>`${tr(m[1])} — ${m[2]}`],
+[/^(.+): talão (.+) chegou há (\d+) dias e ainda não está faturado$/,m=>`${m[1]}: slip ${m[2]} arrived ${m[3]} days ago and is not invoiced yet`],
+[/^(.+): (.+) concluído há (\d+) dias e sem fatura$/,m=>`${m[1]}: ${m[2]} completed ${m[3]} days ago with no invoice`],
+[/^(.+): talão (.+) a caminho há (\d+) dias — confirmar chegada$/,m=>`${m[1]}: slip ${m[2]} in transit for ${m[3]} days — confirm arrival`],
+[/^(.+): talão (.+) cobrado (.+) · tabela dá (.+) \((.+)\)$/,m=>`${m[1]}: slip ${m[2]} charged ${m[3]} · table gives ${m[4]} (${m[5]})`],
+[/^(.+): (.+) aprovado sem adiantamento de (\d+)% registado$/,m=>`${m[1]}: ${m[2]} approved with no ${m[3]}% advance recorded`],
+[/^(.+): (.+) entregue — falta pagar (.+)$/,m=>`${m[1]}: ${m[2]} delivered — ${m[3]} still to pay`],
+[/^(.+): (.+) parado em “(.+)” há (\d+) dias$/,m=>`${m[1]}: ${m[2]} stuck in “${tr(m[3])}” for ${m[4]} days`],
+[/^(.+): (.+) marcado com problema$/,m=>`${m[1]}: ${m[2]} marked as problem`],
+[/^(.+): (.+) — por confirmar \(CHECK\)$/,m=>`${m[1]}: ${m[2]} — to confirm (CHECK)`],
+[/^(.+): fatura nº (.+) registada duas vezes$/,m=>`${m[1]}: invoice no. ${m[2]} recorded twice`],
+[/^(.+): fatura (.+) — subtotal (.+) ≠ soma dos movimentos ligados (.+)$/,m=>`${m[1]}: invoice ${m[2]} — subtotal ${m[3]} ≠ sum of linked entries ${m[4]}`],
+[/^(.+): fatura (.+) sem talões\/reparações ligados$/,m=>`${m[1]}: invoice ${m[2]} has no linked slips/repairs`],
+[/^(.+): fatura (.+) vencida há (\d+) dias — (.+)$/,m=>`${m[1]}: invoice ${m[2]} overdue by ${m[3]} days — ${m[4]}`],
+[/^(.+): fatura (.+) paga a mais \((.+)\)$/,m=>`${m[1]}: invoice ${m[2]} overpaid (${m[3]})`],
+[/^(.+): fatura (.+) — por confirmar \(CHECK\)$/,m=>`${m[1]}: invoice ${m[2]} — to confirm (CHECK)`],
+[/^⚠ (\d+) pontos? críticos?: (.+)$/,m=>`⚠ ${m[1]} critical: ${tr(m[2].replace(/ …$/,''))}${m[2].endsWith(' …')?' …':''}`],
+[/^⚠ (\d+) ponto crítico: (.+)$/,m=>`⚠ ${m[1]} critical: ${tr(m[2])}`],
+[/^\+(\d+) alertas — abra cada prestador para ver todos\.$/,m=>`+${m[1]} alerts — open each provider to see them all.`],
+[/^(.+) · NUIT (.+)$/,m=>`${tr(m[1])} · NUIT ${m[2]}`],[/^(\d+)% adiantado$/,m=>`${m[1]}% advance`],[/^pagamento a (\d+) dias$/,m=>`payment in ${m[1]} days`],
+[/^A fatura nº (.+) já está registada \((.+), (.+)\)\. Registar de novo\?$/,m=>`Invoice no. ${m[1]} is already recorded (${m[2]}, ${m[3]}). Record it again?`],
+[/^Apagar (.+)\? Não pode ser desfeito\.$/,m=>`Delete ${({'este movimento':'this entry','este pagamento':'this payment','este preço':'this price'})[m[1]]||m[1].replace(/^a fatura/,'invoice')}? This cannot be undone.`],
+[/^Com este pagamento a fatura (.+) fica paga a mais em (.+)\. Continuar\?$/,m=>`With this payment invoice ${m[1]} will be overpaid by ${m[2]}. Continue?`],
+[/^Já existe um talão (.+) \((.+)\)\. Guardar mesmo assim\?$/,m=>`Slip ${m[1]} already exists (${m[2]}). Save anyway?`],
+[/^(\d+) registos importados$/,m=>`${m[1]} entries imported`],[/^Anexado \((.+)\)$/,m=>`Attached (${m[1]})`],[/^A preparar (.+)…$/,m=>`Preparing ${m[1]}…`],
+[/^Falhou: (.+)$/,m=>`Failed: ${m[1]}`],[/^Erro: (.+)$/,m=>`Error: ${m[1]}`],[/^Não consegui ler o ficheiro: (.+)$/,m=>`Could not read the file: ${m[1]}`],[/^Não foi possível exportar: (.+)$/,m=>`Could not export: ${m[1]}`],[/^Erro ao carregar: (.+)$/,m=>`Loading error: ${m[1]}`],
+[/^Importado de (.+)$/,m=>`Imported from ${m[1]}`],
+[/^(\d+) KB$/,m=>`${m[1]} KB`],[/^Fatura (.+)$/,m=>`Invoice ${m[1]}`],[/^Ficha$/,m=>'Profile']];
+function base(k){let v=EN[k];if(v==null)for(const[rx,f]of RX){const m=k.match(rx);if(m){v=f(m);break}}return v}
+function tr(s){if(LANG!=='en'||s==null)return s;const k=String(s).trim();if(!k)return s;let v=base(k);
+ if(v==null&&k.includes(' · ')){const parts=k.split(' · ');const t=parts.map(p=>base(p)??(p.startsWith('Novo')&&EN[p.slice(5)]?'New '+EN[p.slice(5)].toLowerCase():p==='Novo'?'New':p==='Nova fatura'?'New invoice':p==='Novo pagamento'?'New payment':p==='Fatura'?'Invoice':p==='Importar Excel'?'Import Excel':p));if(t.some((x,i)=>x!==parts[i]))v=t.join(' · ')}
+ if(v==null&&/^\+ /.test(k)&&EN[k.slice(2)])v='+ '+EN[k.slice(2)];
+ if(v==null&&/^Novo · /.test(k))v=tr(k.slice(7));
+ return v==null?s:String(s).replace(k,v)}
+function i18n(root){if(LANG!=='en'||!root)return;if(root.nodeType===3){const p=root.parentElement;if(p&&!['SCRIPT','STYLE','TEXTAREA'].includes(p.tagName)){const v=tr(root.nodeValue);if(v!==root.nodeValue)root.nodeValue=v}return}
+ if(root.nodeType!==1||['SCRIPT','STYLE','TEXTAREA'].includes(root.tagName))return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const list=[];let x;while(x=w.nextNode())list.push(x);for(const t of list)i18n(t);
+ for(const el of [root,...root.querySelectorAll('[placeholder],[title],[aria-label]')])for(const a of ['placeholder','title','aria-label']){const v=el.getAttribute&&el.getAttribute(a);if(v){const t=tr(v);if(t!==v)el.setAttribute(a,t)}}}
+if(LANG==='en'){document.documentElement.lang='en';new MutationObserver(ms=>{for(const m of ms){if(m.type==='characterData')i18n(m.target);else m.addedNodes.forEach(i18n)}}).observe(document.body,{childList:true,subtree:true,characterData:true});i18n(document.body)}
+else document.documentElement.lang='pt';
+document.title=LANG==='en'?'Provider Payments':'Pagamentos a Prestadores';
+document.querySelectorAll('[data-act=setLang]').forEach(b=>b.classList.toggle('on',b.dataset.l===LANG));
+
 /* ---------- configuration ---------- */
 const CATS={
  transporte:{label:'Transporte',noun:'Envio / talão',plural:'Envios',statuses:['A preparar','A caminho','Chegou','Problema'],final:['Chegou'],
@@ -270,7 +384,7 @@ function viewProv(pid){const p=prov(pid),c=CATS[p.cat],b=balance(pid),A=alerts(p
  const tabs=[['mov',c.plural],['fat','Faturas'],['pag','Pagamentos'],['cc','Conta corrente'],['pre',p.cat==='transporte'?'Tabela de preços':'Itens & preços'],['alr',`Alertas (${A.length})`],['fic','Ficha']];
  const op=S.invoices.filter(i=>i.pid===pid&&invStatus(i)!=='Pago');
  return`<div class="head"><div><h2>${esc(p.name)}</h2><p>${esc(c.label)}${p.nuit?' · NUIT '+esc(p.nuit):''}${p.phone?' · '+esc(p.phone):''}${p.terms?` · pagamento a ${esc(p.terms)} dias`:''}${p.advance?` · ${esc(p.advance)}% adiantado`:''}</p></div>
- ${canWrite?`<button class="btn" data-act="newRec">+ ${esc(c.noun)}</button><button class="btn" data-act="newInv">+ Fatura</button><button class="btn pri" data-act="newPay">+ Pagamento</button>`:''}</div>
+ ${canWrite?`<button class="btn" data-act="openImport">Importar Excel</button><button class="btn" data-act="newRec">+ ${esc(c.noun)}</button><button class="btn" data-act="newInv">+ Fatura</button><button class="btn pri" data-act="newPay">+ Pagamento</button>`:''}</div>
  <div class="kpis"><div class="kpi ${b>0.5?'hot':''}"><small>Saldo em dívida</small><div>${mt0(b)}</div></div><div class="kpi"><small>Faturas abertas</small><div>${op.length}</div></div>
  <div class="kpi"><small>${esc(c.plural)} não faturados</small><div>${mt0(unbilled(pid))}</div></div><div class="kpi"><small>Pago em ${today().slice(0,4)}</small><div>${mt0(S.payments.filter(x=>x.pid===pid&&(x.date||'').startsWith(today().slice(0,4))).reduce((s,x)=>s+n(x.amount),0))}</div></div></div>
  <div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${T===k?'on':''}" data-tab="${k}">${esc(l)}</button>`).join('')}</div>
@@ -392,7 +506,7 @@ function invForm(){const i=cur.o,p=prov(i.pid);const cand=S.records.filter(r=>r.
 function openInv(id,pid){const i=id?clone(S.invoices.find(x=>x.id===id)):{pid:pid||(V.p!=='painel'?V.p:S.providers[0]?.id),date:today(),vat:0,disc:0,files:[]};if(!i)return;
  if(!id){i.due=addDays(i.date,n(prov(i.pid).terms)||30);i.company=prov(i.pid).company||''}
  cur={type:'inv',o:i,sel:new Set(id?S.records.filter(r=>r.invId===id).map(r=>r.id):[]),chk:''};
- openDrawer((id?'Fatura ':'Nova fatura · ')+(i.no||'')+' · '+prov(i.pid).name,invForm(),`${id?'<button class="btn grow" data-act="delInv">Apagar</button>':'<span class="grow"></span>'}<button class="btn" data-act="close">Cancelar</button><button class="btn pri" data-act="saveInv">Guardar</button>`)}
+ openDrawer([id?'Fatura '+(i.no||''):'Nova fatura',prov(i.pid).name].join(' · '),invForm(),`${id?'<button class="btn grow" data-act="delInv">Apagar</button>':'<span class="grow"></span>'}<button class="btn" data-act="close">Cancelar</button><button class="btn pri" data-act="saveInv">Guardar</button>`)}
 function refreshInv(){readForm(cur.o);repaint(invForm())}
 async function saveInv(){readForm(cur.o);const i=cur.o;i.check=!!$('#dBody [data-k=check]')?.checked;if(!i.no)return toast('Indique o nº da fatura');
  const dup=S.invoices.find(x=>x.pid===i.pid&&x.id!==i.id&&String(x.no).trim().toLowerCase()===String(i.no).trim().toLowerCase());
@@ -488,6 +602,59 @@ function exportCC(){const p=prov(V.p);save(`Extrato_${p.name.replace(/\W+/g,'_')
 function fail(e){const m=e?.message||e?.code||String(e);toast(/row-level|permission|policy/i.test(m)?'Sem permissão para esta ação':'Erro: '+m)}
 
 
+/* ---------- Excel import (no typing) ---------- */
+const IMP_FIELDS=[['date','Data'],['slip','Talão / Nº'],['ref','Referência'],['route','Rota / destino'],['desc','Descrição'],['qty','Quantidade'],['price','Preço unitário'],['amount','Valor'],['vehicle','Viatura']];
+const IMP_RX={date:/^(data|date|dia)\b/i,slip:/tal(ã|a)o|tal(õ|o)es|entrada|slip|guia|^n[ºo°.]?\s*doc/i,ref:/^ref|refer/i,route:/destino|rota|route|trajet/i,desc:/descri|artigo|servi|mercadoria|desc/i,qty:/^qt|quant/i,price:/unit/i,amount:/valor|total|pre(ç|c)o|amount|montante|import/i,vehicle:/viatura|matr|ve(í|i)culo|vehicle/i};
+const PLACEMAP={MAPUTO:'MPT',MPT:'MPT',BEIRA:'BEIRA',BRA:'BEIRA',NAMPULA:'NPL',NPL:'NPL',QUELIMANE:'QUELIMANE',PEMBA:'PEMBA',TETE:'TETE',CHIMOIO:'CHIMOIO',NACALA:'NACALA'};
+function impDate(v){if(v==null||v==='')return'';if(v instanceof Date)return v.toISOString().slice(0,10);if(typeof v==='number'&&v>20000&&v<80000){const d=new Date(Math.round((v-25569)*864e5));return d.toISOString().slice(0,10)}
+ const m=String(v).trim().match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})/);if(m){let y=+m[3];if(y<100)y+=2000;return`${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}const m2=String(v).match(/^(\d{4})-(\d{2})-(\d{2})/);return m2?m2[0]:''}
+function impRoute(v){const t=String(v||'').toUpperCase().split(/[\s\-–>\/]+/).map(x=>PLACEMAP[x]).filter(Boolean);return t.length>=2?{origin:t[0],dest:t[1]}:{}}
+function openImport(){const pid=V.p;cur={type:'imp',o:{pid,files:[]},imp:{name:'',sheets:[],sheet:'',rows:[],head:0,map:{},status:CATS[prov(pid).cat].final[0],company:prov(pid).company||'',mkInv:false,invNo:'',invDate:today()}};
+ openDrawer(`Importar Excel · ${prov(pid).name}`,impForm(),`<span class="grow"></span><button class="btn" data-act="close">Cancelar</button><button class="btn pri" data-act="runImport" id="impGo" disabled>Importar</button>`)}
+function impParse(){const I=cur.imp;if(!I.rows.length)return{recs:[],skipped:[]};const M=I.map,R=I.rows.slice(I.head+1),recs=[],skipped=[];const p=prov(cur.o.pid),its=[...new Set(S.rates.filter(x=>x.pid===p.id).map(x=>x.item))];
+ const cell=(row,k)=>M[k]===''||M[k]==null?null:row[+M[k]];
+ for(const row of R){if(!row||row.every(v=>v==null||String(v).trim()===''))continue;const desc=String(cell(row,'desc')??'').trim();if(/^(sub\s*)?total/i.test(desc)||row.some(v=>/^sub\s*total$/i.test(String(v||'').trim())))break;
+  const date=impDate(cell(row,'date')),slip=String(cell(row,'slip')??'').replace(/\.0$/,'').trim(),ref=String(cell(row,'ref')??'').trim(),route=impRoute(cell(row,'route'));
+  let q=n(cell(row,'qty')),pr=n(cell(row,'price')),am=n(cell(row,'amount')),d=desc;
+  const mq=desc.match(/^(\d+(?:[.,]\d+)?)\s*(.*)$/);if(!q&&mq){q=n(mq[1].replace(',','.'));d=mq[2]||'CX'}if(!q)q=1;
+  if(!pr&&am)pr=Math.round(am/q*10000)/10000;if(!am&&pr)am=q*pr;
+  const line={d:d||desc,q,p:pr||'',_a:am};const du=line.d.toUpperCase();
+  const isNew=date||slip||(ref&&!recs.length)||!recs.length;
+  if(isNew){const r={pid:p.id,date:date||(recs.at(-1)?.date)||today(),slip,ref,company:I.company,status:I.status,lines:[line],files:[],notes:`Importado de ${I.name}`,...route};if(cell(row,'vehicle'))r.vehicle=String(cell(row,'vehicle')).trim();if(p.cat!=='transporte')r.title=line.d;recs.push(r)}
+  else recs.at(-1).lines.push(line);
+  const r=recs.at(-1),rt=routeOf(r);const m=[...new Set(S.rates.filter(x=>x.pid===p.id&&x.route===rt).map(x=>x.item))].find(it=>(du===it||du.includes(it))&&n(rateFor(p.id,rt,it,r.date)?.price)===n(line.p));if(m&&!line.item)line.item=m}
+ for(const r of recs){r.total=Math.round(r.lines.reduce((t,l)=>t+n(l._a||n(l.q)*n(l.p)),0)*100)/100;r.lines.forEach(l=>delete l._a);if(!r.lines.some(l=>n(l.p)))r.check=true}
+ const mine=S.records.filter(x=>x.pid===cur.o.pid),ex=new Set(mine.filter(x=>x.slip).map(x=>String(x.slip).trim())),ex2=new Set(mine.map(x=>`${x.date}|${x.ref||''}|${Math.round(n(x.total))}`));
+ const dup=r=>r.slip?ex.has(r.slip):ex2.has(`${r.date}|${r.ref||''}|${Math.round(n(r.total))}`);
+ return{recs:recs.filter(r=>!dup(r)),skipped:recs.filter(dup)}}
+function impForm(){const I=cur.imp,P=I.rows.length?impParse():{recs:[],skipped:[]};const head=I.rows[I.head]||[];const cols=head.map((h,i)=>[String(i),`${String.fromCharCode(65+i)} · ${String(h??'').slice(0,24)}`]);
+ setTimeout(()=>{const b=$('#impGo');if(b)b.disabled=!P.recs.length},0);const tot=P.recs.reduce((s,r)=>s+n(r.total),0);
+ return`<div class="ai"><p>Escolha o ficheiro Excel do prestador (fatura, extrato ou lista de talões). O sistema reconhece as colunas; confirme abaixo e importe — sem escrever nada.</p><button class="btn sm pri" data-act="pickXls">Escolher ficheiro Excel</button></div>
+ ${I.name?`<div class="form">${I.sheets.length>1?sel('_sheet','Folha',I.sheet,I.sheets,'',false):''}${inp('_head','Linha dos títulos (nº)',String(I.head+1))}
+ ${sel('_status','Estado dos registos',I.status,CATS[prov(cur.o.pid).cat].statuses,'',false)}${sel('_company','Empresa',I.company,S.settings.companies)}</div>
+ <div class="sec">Colunas reconhecidas</div><div class="form">${IMP_FIELDS.map(([k,l])=>sel('_m_'+k,l,I.map[k]??'',cols)).join('')}</div>
+ <div class="sec">Fatura</div><div class="form"><label class="f full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" data-k="_mkInv" ${I.mkInv?'checked':''} style="min-height:auto;width:20px;height:20px"> Criar também a fatura com estes registos</label>
+ ${I.mkInv?inp('_invNo','Nº da fatura',I.invNo)+inp('_invDate','Data da fatura',I.invDate,'date'):''}</div>
+ <div class="sec">Pré-visualização<span class="sub">${P.recs.length} registos · ${mt(tot)}${P.skipped.length?` · ${P.skipped.length} já existem (ignorados)`:''}</span></div>
+ <div class="scroll" style="max-height:340px;overflow-y:auto"><table><thead><tr><th>Data</th><th>Talão / ref</th><th>Rota</th><th>Linhas</th><th class="num">Valor</th></tr></thead><tbody>
+ ${P.recs.slice(0,200).map(r=>`<tr><td>${dd(r.date)}</td><td>${esc(r.slip||r.ref||'')}</td><td>${esc(r.origin?r.origin+' → '+r.dest:'')}</td><td>${esc(r.lines.map(l=>`${l.q} ${l.d}`).join(', '))}${r.check?' <span class="flag">CHECK</span>':''}</td><td class="num">${mt0(r.total)}</td></tr>`).join('')}</tbody></table></div>`:''}`}
+async function impLoadFile(f){try{await loadXLSX();const wb=XLSX.read(await f.arrayBuffer(),{type:'array',cellDates:true});const I=cur.imp;I.name=f.name;I.wb=wb;I.sheets=wb.SheetNames;I.sheet=wb.SheetNames[0];impSheet();
+ if(!I.invNo){const m=f.name.match(/(?:fact|fat|inv|fatura)[^\d]*(\d+)/i);if(m)I.invNo=m[1]}repaint(impForm())}catch(e){toast('Não consegui ler o ficheiro: '+(e.message||e))}}
+function impSheet(){const I=cur.imp;I.rows=XLSX.utils.sheet_to_json(I.wb.Sheets[I.sheet],{header:1,raw:true,defval:null});
+ let best=0,bi=0;I.rows.slice(0,20).forEach((r,i)=>{const sc=(r||[]).filter(v=>v!=null&&Object.values(IMP_RX).some(rx=>rx.test(String(v).trim()))).length;if(sc>best){best=sc;bi=i}});I.head=bi;impAutoMap()}
+function impAutoMap(){const I=cur.imp,h=I.rows[I.head]||[],M={};for(const[k]of IMP_FIELDS){const i=h.findIndex((v,ix)=>v!=null&&IMP_RX[k].test(String(v).trim())&&!Object.values(M).includes(String(ix))&&!(k==='amount'&&IMP_RX.price.test(String(v))));M[k]=i>=0?String(i):''}
+ if(M.desc===''){const i=h.findIndex(v=>v==null);}I.map=M}
+function impRead(){const I=cur.imp;for(const el of $('#dBody').querySelectorAll('[data-k]')){const k=el.dataset.k;if(k==='_sheet'&&el.value!==I.sheet){I.sheet=el.value;impSheet();return}
+  if(k==='_head'){const h=Math.max(0,parseInt(el.value||'1')-1);if(h!==I.head){I.head=h;impAutoMap();return}}
+  if(k==='_status')I.status=el.value;if(k==='_company')I.company=el.value;if(k==='_mkInv')I.mkInv=el.checked;if(k==='_invNo')I.invNo=el.value;if(k==='_invDate')I.invDate=el.value;if(k.startsWith('_m_'))I.map[k.slice(3)]=el.value}}
+async function runImport(){impRead();const I=cur.imp,P=impParse();if(!P.recs.length)return;if(I.mkInv&&!I.invNo)return toast('Indique o nº da fatura');
+ const b=$('#impGo');b.disabled=true;b.textContent='A importar…';
+ try{let invId=null;if(I.mkInv){const inv={pid:cur.o.pid,no:I.invNo,date:I.invDate,company:I.company,sub:Math.round(P.recs.reduce((s,r)=>s+n(r.total),0)*100)/100,disc:0,vat:0,files:[],notes:`Importada de ${I.name}`};invId=await put('invoices',inv)}
+  const rows=P.recs.map(r=>{r.id=crypto.randomUUID();r.invId=invId||'';r.statusAt=r.date;r.history=[{s:r.status,at:r.date}];return toRow.records(r)});
+  for(let i=0;i<rows.length;i+=200){const {error}=await sb.from('prest_records').insert(rows.slice(i,i+200));if(error)throw error}
+  await loadKey('records');log(cur.o.pid,`Importou ${rows.length} registos de ${I.name}${I.mkInv?' · fatura '+I.invNo:''} · ${mt0(P.recs.reduce((s,r)=>s+n(r.total),0))}`);closeDrawer();V.tab='mov';draw();toast(`${rows.length} registos importados`)}
+ catch(e){b.disabled=false;b.textContent='Importar';fail(e)}}
+
 /* ---------- Supabase data layer ---------- */
 const TB={providers:'prest_providers',rates:'prest_rates',records:'prest_records',invoices:'prest_invoices',payments:'prest_payments'};
 const REC_COLS=['id','pid','date','status','status_at','slip','ref','company','total','inv_id','chk','lines','history','doc','notes','files'];
@@ -536,19 +703,21 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-go],
   runPaste:async()=>{const txt=$('#pasteBox').value.trim();if(!txt)return;try{await checkInvoice({text:txt})}catch(err){toast('Erro: '+(err.message||err))}},
   selAll:()=>{readForm(cur.o);for(const r of S.records.filter(r=>r.pid===cur.o.pid&&!r.invId))cur.sel.add(r.id);refreshInv()},
   useSum:()=>{readForm(cur.o);cur.o.sub=Math.round(S.records.filter(r=>cur.sel.has(r.id)).reduce((s,r)=>s+n(r.total),0)*100)/100;refreshInv()},
-  payThis:()=>openPay(null,cur.o.pid,cur.o.id),expCC:exportCC
+  payThis:()=>openPay(null,cur.o.pid,cur.o.id),openImport,pickXls:()=>$('#xlsIn').click(),runImport,setLang:()=>{try{localStorage.setItem('pp_lang',t.dataset.l)}catch{}location.reload()},expCC:exportCC
  }[a]||(()=>{}))()});
 document.addEventListener('change',e=>later(()=>onChange(e)));
 function onChange(e){const t=e.target;if(!t.isConnected&&!t.dataset.f)return;
  if(t.dataset.f){V[t.dataset.f]=t.value;draw();return}
  if(t.dataset.pick){cur.sel[t.checked?'add':'delete'](t.dataset.pick);refreshInv();return}
  if(!cur)return;
+ if(cur.type==='imp'&&t.dataset.k&&t.dataset.k.startsWith('_')){impRead();repaint(impForm());return}
  if(cur.type==='rec'&&(t.dataset.lk==='item'||['origin','dest','date','pid'].includes(t.dataset.k))){readLines();readForm(cur.o);if(t.dataset.lk==='item'){const l=cur.o.lines[+t.dataset.l];const r=rateFor(cur.o.pid,routeOf(cur.o),l.item,cur.o.date);if(r)l.p=r.price;if(r&&r.per==='viagem'&&!l.q)l.q=1}refreshRec();return}
  if(cur.type==='rec'&&(t.dataset.lk==='q'||t.dataset.lk==='p'||['base','pct','province'].includes(t.dataset.k))){readLines();readForm(cur.o);if(t.dataset.k==='province'){const m=String(prov(cur.o.pid).pcts||'').split('\n').map(s=>s.split('=')).find(([a])=>a&&a.trim().toLowerCase()===String(cur.o.province).toLowerCase());if(m)cur.o.pct=n(m[1])}refreshRec();return}
  if(cur.type==='rec'&&t.dataset.lk==='d'){readLines();const l=cur.o.lines[+t.dataset.l];if(l&&!l.p){const last=S.records.filter(x=>x.pid===cur.o.pid).sort((a,b)=>(b.date||'').localeCompare(a.date||'')).flatMap(x=>x.lines||[]).find(x=>x.d===l.d&&n(x.p));if(last){l.p=last.p;refreshRec()}}return}
  if(cur.type==='inv'&&['sub','disc','vat','pid','date'].includes(t.dataset.k)){refreshInv();return}
  if(cur.type==='pay'&&t.dataset.k==='invId'){readForm(cur.o);const i=S.invoices.find(z=>z.id===cur.o.invId);if(i&&!n(cur.o.amount)){cur.o.amount=Math.round((invTotal(i)-invPaid(i))*100)/100;cur.o.company=cur.o.company||i.company}rerender()}
  if(cur.type==='pay'&&t.dataset.k==='pid'){readForm(cur.o);cur.o.invId='';rerender()}}
+$('#xlsIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(f&&cur&&cur.type==='imp')impLoadFile(f)});
 $('#fileIn').addEventListener('change',e=>{const f=[...e.target.files];e.target.value='';if(f.length)onFiles(f)});
 
 $('#ov').onclick=closeDrawer;$('#dClose').onclick=closeDrawer;$('#newBtn').onclick=newMenu;$('#setBtn').onclick=()=>isAdmin?openSettings():toast('Só o administrador');$('#outBtn').onclick=()=>sb.auth.signOut().then(()=>location.reload());$('#expBtn').onclick=exportAll;

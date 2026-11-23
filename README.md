@@ -1,4 +1,4 @@
-# Madi Prestadores
+# Madi Provider Payments
 
 Web app for Madi Group service-provider payments (transport, branding, workshop, IT support, subscriptions).
 
