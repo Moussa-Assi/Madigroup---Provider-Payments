@@ -147,7 +147,7 @@ textarea{min-height:70px;resize:vertical}
 <input type="file" id="fileIn" multiple accept="image/*,application/pdf" hidden>
 <input type="file" id="xlsIn" accept=".xlsx,.xls,.xlsm,.csv" hidden>
 <div id="login" style="display:none"><div class="box"><h2>Pagamentos a Prestadores</h2><p>Madi Group</p>
-<form id="lgf"><label>Email<input id="lg_e" type="email" autocomplete="username" required></label><label>Palavra-passe<input id="lg_p" type="password" autocomplete="current-password" required></label><div class="e" id="lg_err"></div><button id="lg_b">Entrar</button></form></div></div>
+<form id="lgf"><label>Email / utilizador<input id="lg_e" type="text" autocomplete="username" autocapitalize="none" required></label><label>Palavra-passe<input id="lg_p" type="password" autocomplete="current-password" required></label><div class="e" id="lg_err"></div><button id="lg_b">Entrar</button></form></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 
 <script>
@@ -249,7 +249,19 @@ const RX=[
 [/^Falhou: (.+)$/,m=>`Failed: ${m[1]}`],[/^Erro: (.+)$/,m=>`Error: ${m[1]}`],[/^Não consegui ler o ficheiro: (.+)$/,m=>`Could not read the file: ${m[1]}`],[/^Não foi possível exportar: (.+)$/,m=>`Could not export: ${m[1]}`],[/^Erro ao carregar: (.+)$/,m=>`Loading error: ${m[1]}`],
 [/^Importado de (.+)$/,m=>`Imported from ${m[1]}`],
 [/^(\d+) KB$/,m=>`${m[1]} KB`],[/^Fatura (.+)$/,m=>`Invoice ${m[1]}`],[/^Ficha$/,m=>'Profile']];
-function base(k){let v=EN[k];if(v==null)for(const[rx,f]of RX){const m=k.match(rx);if(m){v=f(m);break}}return v}
+
+Object.assign(EN,{'Transferências':'Transfers','Transferência':'Transfer','+ Transferência':'+ Transfer','transferências':'transfers','Contentor':'Container','Registado':'Recorded','Conferência':'Check','Conferência: todos':'Check: all','Pendente':'Pending','Confirmado':'Confirmed','Não confere':'Does not match','Todos os armazéns':'All warehouses','Documento':'Document','Mercadoria':'Goods','Talões do transportador':'Carrier slips','Chegada':'Arrival','Valor doc.':'Doc. amount','Frete':'Freight','Tipo de documento':'Document type','Nº do documento (PHC)':'Document no. (PHC)','Fornecedor / marca':'Supplier / brand',
+'Talões do transportador (NR/ENTRADA ou referência, separados por vírgula)':'Carrier slips (NR/ENTRADA or reference, separated by commas)','ex.: 1002025, 1002026':'e.g. 1002025, 1002026','Mercadoria enviada':'Goods sent','ex.: cx/bolachas':'e.g. cx/bolachas','Receção no destino':'Receipt at destination','Data de chegada':'Arrival date','Quantidade recebida':'Quantity received','Recebido por':'Received by','Observações da receção (faltas, danos…)':'Receipt notes (missing, damaged…)',
+'Conferência (só administração)':'Check (administration only)','Valor do documento (MT)':'Document amount (MT)','Notas da conferência':'Check notes','Ficheiros (talão, documento PHC assinado)':'Files (slip, signed PHC document)','Origem e destino iguais':'Origin and destination are the same',
+'Sem documentos ainda. Use “+ Transferência” para registar cada envio entre armazéns.':'No documents yet. Use “+ Transfer” to record each shipment between warehouses.','Nosso doc.':'Our doc.','Armazém':'Warehouse','Utilizadores':'Users','Utilizador':'Username','Acesso':'Access','Novo utilizador':'New user','Editar utilizador':'Edit user','Utilizador (para entrar, ex.: ali.khalife)':'Username (to sign in, e.g. ali.khalife)','Palavra-passe (mín. 6)':'Password (min. 6)','Nova palavra-passe (deixe vazio para manter)':'New password (leave empty to keep)',
+'Armazém: vê só as transferências do Imtiaz, sem nenhum valor. Só leitura: vê tudo mas não altera. Edição: regista e altera, não apaga. Estes acessos não dão entrada no Sistema RH.':'Warehouse: sees only the Imtiaz transfers, with no amounts. View only: sees everything but changes nothing. Editor: records and edits, cannot delete. These accounts give no access to the HR system.',
+'Cancelar edição':'Cancel edit','Remover acesso':'Remove access','Guardar alterações':'Save changes','Criar utilizador':'Create user','Utilizador criado':'User created','Removido':'Removed','Email / utilizador':'Email / username','Crie e gira os utilizadores: armazéns (Maputo, Beira, Nampula), leitura ou edição.':'Create and manage users: warehouses (Maputo, Beira, Nampula), view only or editor.','Maputo':'Maputo','Beira':'Beira','Nampula':'Nampula','Apagar este documento? Não pode ser desfeito.':'Delete this document? This cannot be undone.','ainda não registado pelo transportador':'not recorded by the carrier yet','não faturado':'not invoiced'});
+RX.push([/^Só (.+)$/,m=>`Only ${m[1]}`],[/^(\d+) documentos( · documentos (.+) · frete (.+))?$/,m=>`${m[1]} documents${m[2]?` · documents ${m[3]} · freight ${m[4]}`:''}`],[/^Total (\d+)$/,m=>`Total ${m[1]}`],[/^Frete cobrado: (.+)$/,m=>`Freight charged: ${m[1]}`],[/^(.+)% do documento$/,m=>`${m[1]}% of the document`],[/^Qtd no talão (.+) · no documento (.+)$/,m=>`Qty on slip ${m[1]} · on document ${m[2]}`],
+[/^Enviado (.+) · recebido (.+) · diferença (.+)$/,m=>`Sent ${m[1]} · received ${m[2]} · difference ${m[3]}`],[/^(.+) de (\d+)$/,m=>/^\d/.test(m[1])?`${m[1]} of ${m[2]}`:null],[/^(.+) em trânsito há (\d+) dias — confirmar chegada$/,m=>`${m[1]} in transit for ${m[2]} days — confirm arrival`],[/^(.+) — enviado (.+), recebido (.+)$/,m=>`${m[1]} — sent ${m[2]}, received ${m[3]}`],[/^(.+) não confere com o transportador$/,m=>`${m[1]} does not match the carrier`],
+[/^(.+): talão (.+) sem documento nosso ligado$/,m=>`${m[1]}: slip ${m[2]} has no document of ours linked`],[/^(.+) · Armazém (.+)$/,m=>`${m[1]} · Warehouse ${m[2]}`],[/^Remover o acesso de (.+)\?$/,m=>`Remove access for ${m[1]}?`],[/^O documento (.+) já está registado \((.+)\)\. Guardar mesmo assim\?$/,m=>`Document ${m[1]} is already recorded (${m[2]}). Save anyway?`],[/^Recebido (.+)$/,m=>`Received ${m[1]}`],[/^Nova · Transferência(.*)$/,m=>`New · Transfer${m[1]}`],[/^Transferência (.+)$/,m=>`Transfer ${m[1]}`],
+[/^(.+) ainda não registado pelo transportador$/,m=>`${m[1]} not recorded by the carrier yet`]);
+
+function base(k){let v=EN[k];if(v==null)for(const[rx,f]of RX){const m=k.match(rx);if(m){v=f(m);if(v!=null)break}}return v}
 function tr(s){if(LANG!=='en'||s==null)return s;const k=String(s).trim();if(!k)return s;let v=base(k);
  if(v==null&&k.includes(' · ')){const parts=k.split(' · ');const t=parts.map(p=>base(p)??(p.startsWith('Novo')&&EN[p.slice(5)]?'New '+EN[p.slice(5)].toLowerCase():p==='Novo'?'New':p==='Nova fatura'?'New invoice':p==='Novo pagamento'?'New payment':p==='Fatura'?'Invoice':p==='Importar Excel'?'Import Excel':p));if(t.some((x,i)=>x!==parts[i]))v=t.join(' · ')}
  if(v==null&&/^\+ /.test(k)&&EN[k.slice(2)])v='+ '+EN[k.slice(2)];
@@ -288,8 +300,8 @@ const PLACE={MPT:'Maputo',BEIRA:'Beira',NPL:'Nampula'};
 const SB_URL='https://erxlksuoplobtfbsvypg.supabase.co',SB_PK='sb_publishable_M5dLHCm5GFfgzP0g0Ol9lQ_3vjLme_l',BUCKET='prestadores';
 const sb=supabase.createClient(SB_URL,SB_PK,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'madi-prest-auth'}});
 let ME={nome:'',role:'viewer'},canWrite=false,isAdmin=false,db=true;
-const S={providers:[],rates:[],records:[],invoices:[],payments:[],log:[],settings:{companies:['CPCM','K Import','Casa Perfumaria','Galerie Madi','Tsutsuma','Elite'],vehicles:[]}};
-const V={p:'painel',tab:'mov',fs:'',ff:'',fm:''};
+const S={transfers:[],tfin:{},providers:[],rates:[],records:[],invoices:[],payments:[],log:[],settings:{companies:['CPCM','K Import','Casa Perfumaria','Galerie Madi','Tsutsuma','Elite'],vehicles:[]}};
+const V={p:'painel',tab:'mov',fs:'',ff:'',fm:'',ts:'',tm:'',mine:true};
 let loaded=false,cur=null;
 
 /* ---------- helpers ---------- */
@@ -348,17 +360,17 @@ function alerts(pid){const A=[],add=(sev,t,open,p)=>A.push({sev,t,open,pid:p});
   if(st==='Vencido')add('bad',`${prov(i.pid).name}: fatura ${i.no} vencida há ${days(i.due)} dias — ${mt0(invTotal(i)-invPaid(i))}`,['inv',i.id],i.pid);
   if(invPaid(i)>invTotal(i)+1)add('bad',`${prov(i.pid).name}: fatura ${i.no} paga a mais (${mt0(invPaid(i)-invTotal(i))})`,['inv',i.id],i.pid);
   if(i.check)add('info',`${prov(i.pid).name}: fatura ${i.no} — por confirmar (CHECK)`,['inv',i.id],i.pid)}
- const o={bad:0,warn:1,info:2};return A.sort((a,b)=>o[a.sev]-o[b.sev])}
+ A.push(...trAlerts(pid));const o={bad:0,warn:1,info:2};return A.sort((a,b)=>o[a.sev]-o[b.sev])}
 
 /* ---------- rendering ---------- */
 let rq=0;const render=()=>{if(rq)return;rq=requestAnimationFrame(()=>{rq=0;draw()})};
 function draw(){drawChips();drawBanner();const q=$('#q').value.trim();const m=$('#main');
  if(!loaded){m.innerHTML='<div class="empty">A carregar…</div>';return}
  
- m.innerHTML=q?viewSearch(q):V.p==='painel'?viewPainel():viewProv(V.p)}
-function drawBanner(){const A=loaded?alerts():[],bad=A.filter(a=>a.sev==='bad');const b=$('#bannerBox');
+ m.innerHTML=isWH()?viewWH(V.p):q?viewSearch(q):V.p==='painel'?viewPainel():viewProv(V.p)}
+function drawBanner(){const A=loaded?(isWH()?trAlerts():alerts()):[],bad=A.filter(a=>a.sev==='bad');const b=$('#bannerBox');
  b.innerHTML=bad.length?`<div class="banner"><span>⚠ ${bad.length} ${bad.length===1?'ponto crítico':'pontos críticos'}: ${esc(bad[0].t)}${bad.length>1?' …':''}</span><button data-go="painel">Resolver agora</button></div>`:''}
-function drawChips(){const c=$('#chips');const ps=[...S.providers].sort((a,b)=>(a.order??99)-(b.order??99));
+function drawChips(){const c=$('#chips');if(isWH()){c.innerHTML=`<button class="chip on"><b>${esc(prov(V.p).name)}</b><span>transferências</span></button>`;return}const ps=[...S.providers].sort((a,b)=>(a.order??99)-(b.order??99));
  c.innerHTML=`<button class="chip ${V.p==='painel'?'on':''}" data-go="painel"><b>Painel</b><span>${mt0(balance())} em dívida</span></button>`+
  ps.map(p=>{const b=balance(p.id),na=loaded?alerts(p.id).filter(a=>a.sev!=='info').length:0;return`<button class="chip ${V.p===p.id?'on':''}" data-go="${p.id}"><b>${esc(p.name)}${na?`<span class="badge">${na}</span>`:''}</b><span>${b>0.5?mt0(b):'em dia'}</span></button>`}).join('')+
  (isAdmin?`<button class="chip" data-act="newProv"><b>+ Prestador</b><span>adicionar</span></button>`:'')}
@@ -380,15 +392,16 @@ function viewPainel(){const A=alerts(),owed=balance(),over=S.invoices.filter(i=>
  <div class="card"><h3>Últimos registos</h3>${S.log.slice(0,10).map(l=>`<div class="sub" style="padding:5px 0;border-bottom:1px solid var(--line)">${dd(l.at)} ${String(l.at||'').slice(11,16)} · ${esc(l.t)}</div>`).join('')||'<div class="sub">Ainda sem atividade.</div>'}</div></div></div>`}
 const alertRow=a=>`<div class="alert" data-open="${a.open.join(':')}"><span class="dot ${a.sev==='bad'?'bad':a.sev==='info'?'info':''}"></span><div>${esc(a.t)}</div></div>`;
 
+function viewWH(pid){const p=prov(pid);return`<div class="head"><div><h2>${esc(p.name)}</h2><p>${esc(ME.nome)} · Armazém ${esc(cap(ME.loc||''))}</p></div></div><div class="tabs"><button class="tab on">Transferências</button></div>${tabTrf(pid)}`}
 function viewProv(pid){const p=prov(pid),c=CATS[p.cat],b=balance(pid),A=alerts(pid),T=V.tab;
- const tabs=[['mov',c.plural],['fat','Faturas'],['pag','Pagamentos'],['cc','Conta corrente'],['pre',p.cat==='transporte'?'Tabela de preços':'Itens & preços'],['alr',`Alertas (${A.length})`],['fic','Ficha']];
+ const tabs=isWH()?[['trf','Transferências']]:[['mov',c.plural],...(p.cat==='transporte'?[['trf','Transferências']]:[]),['fat','Faturas'],['pag','Pagamentos'],['cc','Conta corrente'],['pre',p.cat==='transporte'?'Tabela de preços':'Itens & preços'],['alr',`Alertas (${A.length})`],['fic','Ficha']];
  const op=S.invoices.filter(i=>i.pid===pid&&invStatus(i)!=='Pago');
  return`<div class="head"><div><h2>${esc(p.name)}</h2><p>${esc(c.label)}${p.nuit?' · NUIT '+esc(p.nuit):''}${p.phone?' · '+esc(p.phone):''}${p.terms?` · pagamento a ${esc(p.terms)} dias`:''}${p.advance?` · ${esc(p.advance)}% adiantado`:''}</p></div>
  ${canWrite?`<button class="btn" data-act="openImport">Importar Excel</button><button class="btn" data-act="newRec">+ ${esc(c.noun)}</button><button class="btn" data-act="newInv">+ Fatura</button><button class="btn pri" data-act="newPay">+ Pagamento</button>`:''}</div>
  <div class="kpis"><div class="kpi ${b>0.5?'hot':''}"><small>Saldo em dívida</small><div>${mt0(b)}</div></div><div class="kpi"><small>Faturas abertas</small><div>${op.length}</div></div>
  <div class="kpi"><small>${esc(c.plural)} não faturados</small><div>${mt0(unbilled(pid))}</div></div><div class="kpi"><small>Pago em ${today().slice(0,4)}</small><div>${mt0(S.payments.filter(x=>x.pid===pid&&(x.date||'').startsWith(today().slice(0,4))).reduce((s,x)=>s+n(x.amount),0))}</div></div></div>
  <div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${T===k?'on':''}" data-tab="${k}">${esc(l)}</button>`).join('')}</div>
- ${T==='mov'?tabMov(pid):T==='fat'?tabFat(pid):T==='pag'?tabPag(pid):T==='cc'?tabCC(pid):T==='pre'?tabPre(pid):T==='alr'?(A.map(alertRow).join('')||'<div class="empty">Sem alertas para este prestador.</div>'):tabFic(pid)}`}
+ ${T==='trf'?tabTrf(pid):T==='mov'?tabMov(pid):T==='fat'?tabFat(pid):T==='pag'?tabPag(pid):T==='cc'?tabCC(pid):T==='pre'?tabPre(pid):T==='alr'?(A.map(alertRow).join('')||'<div class="empty">Sem alertas para este prestador.</div>'):tabFic(pid)}`}
 
 function recLabel(r){const k=prov(r.pid).cat;if(k==='transporte')return`${esc(r.origin||'?')} → ${esc(r.dest||'?')}<div class="sub">${esc((r.lines||[]).map(l=>`${l.q} ${l.item||l.d||''}`).join(', '))}${r.sender?' · '+esc(r.sender):''}</div>`;
  if(k==='viaturas')return`<b>${esc(r.vehicle||'')}</b> ${esc(r.title||'')}`;if(k==='comissao')return`Shoprite ${esc(r.sinv||'')} · ${esc(r.province||'')} · ${esc(r.pct||0)}%`;
@@ -400,9 +413,9 @@ function tabMov(pid){const c=cat(pid);let R=S.records.filter(r=>r.pid===pid);
  return`<div class="filters"><select data-f="fs"><option value="">Estado: todos</option>${c.statuses.map(s=>`<option ${V.fs===s?'selected':''}>${esc(s)}</option>`).join('')}</select>
  <select data-f="ff"><option value="">Pagamento: todos</option>${['Não faturado','Por pagar','Parcial','Vencido','Pago'].map(s=>`<option ${V.ff===s?'selected':''}>${s}</option>`).join('')}</select>
  <select data-f="fm"><option value="">Mês: todos</option>${months.map(m=>`<option ${V.fm===m?'selected':''}>${m}</option>`).join('')}</select><span class="sub" style="align-self:center">${R.length} registos · ${mt0(R.reduce((s,r)=>s+n(r.total),0))}</span></div>
- ${R.length?`<div class="scroll"><table class="stack"><thead><tr><th>Data</th><th>${tr?'Talão / ref':'Ref'}</th><th>Descrição</th><th class="num">Valor</th>${tr?'<th class="num">Tabela</th>':''}<th>Estado</th><th>Pagamento</th></tr></thead><tbody>
+ ${R.length?`<div class="scroll"><table class="stack"><thead><tr><th>Data</th><th>${tr?'Talão / ref':'Ref'}</th><th>Descrição</th><th class="num">Valor</th>${tr?'<th class="num">Tabela</th><th>Nosso doc.</th>':''}<th>Estado</th><th>Pagamento</th></tr></thead><tbody>
  ${R.map(r=>{const e=tr?expected(r):null,df=e!=null&&Math.abs(e-n(r.total))>1;return`<tr class="click" data-open="rec:${r.id}"><td>${dd(r.date)}</td><td>${esc(r.slip||r.quote||r.ref||'')}${r.slip&&r.ref?`<div class="sub">${esc(r.ref)}</div>`:''}</td><td>${recLabel(r)}${r.check?' <span class="flag">CHECK</span>':''}${(r.files||[]).length?` <span class="sub">· ${r.files.length} ficheiro(s)</span>`:''}</td>
- <td class="num">${r.total?mt0(r.total):'—'}</td>${tr?`<td class="num ${df?'diff':''}">${e==null?'<span class="sub">—</span>':mt0(e)}</td>`:''}<td>${pillSt(r)}</td><td>${pillFin(recFin(r))}</td></tr>`}).join('')}</tbody></table></div>`:`<div class="empty">Sem ${esc(c.plural.toLowerCase())} ${V.fs||V.ff||V.fm?'com estes filtros':'ainda'}. Use “+ ${esc(c.noun)}”.</div>`}`}
+ <td class="num">${r.total?mt0(r.total):'—'}</td>${tr?`<td class="num ${df?'diff':''}">${e==null?'<span class="sub">—</span>':mt0(e)}</td><td>${(()=>{const x=recTransfer(r);return x?`<a href="#" data-open="trf:${x.id}">${esc(x.doc_no||x.doc_type)}</a> ${pillMatch(tfin(x).match)}`:'<span class="sub">—</span>'})()}</td>`:''}<td>${pillSt(r)}</td><td>${pillFin(recFin(r))}</td></tr>`}).join('')}</tbody></table></div>`:`<div class="empty">Sem ${esc(c.plural.toLowerCase())} ${V.fs||V.ff||V.fm?'com estes filtros':'ainda'}. Use “+ ${esc(c.noun)}”.</div>`}`}
 function tabFat(pid){const I=S.invoices.filter(i=>i.pid===pid).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
  return I.length?`<div class="scroll"><table class="stack"><thead><tr><th>Nº</th><th>Data</th><th>Vence</th><th>Empresa</th><th class="num">Total</th><th class="num">Pago</th><th class="num">Saldo</th><th>Estado</th></tr></thead><tbody>
  ${I.map(i=>`<tr class="click" data-open="inv:${i.id}"><td><b>${esc(i.no)}</b>${i.check?' <span class="flag">CHECK</span>':''}<div class="sub">${S.records.filter(r=>r.invId===i.id).length} movimento(s)</div></td><td>${dd(i.date)}</td><td>${dd(i.due)}</td><td>${esc(i.company||'')}</td><td class="num">${mt0(invTotal(i))}</td><td class="num">${mt0(invPaid(i))}</td><td class="num">${mt0(invTotal(i)-invPaid(i))}</td><td>${pillFin(invStatus(i))}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sem faturas registadas.</div>'}
@@ -432,7 +445,7 @@ function viewSearch(q){const k=q.toLowerCase(),has=o=>JSON.stringify(o).toLowerC
  <div class="card"><h3>Pagamentos <span class="sub">${P.length}</span></h3>${P.map(p=>`<div class="alert" data-open="pay:${p.id}"><div><b>${esc(prov(p.pid).name)}</b> · ${dd(p.date)} · ${mt0(p.amount)} · ${esc(p.method||'')} ${esc(p.ref||'')}</div></div>`).join('')||'<div class="sub">Nada.</div>'}</div>`}
 
 /* ---------- drawer & forms ---------- */
-function openDrawer(title,body,foot){if(!canWrite)foot=foot.replace(/<button class="btn pri" data-act="save\w+">[^<]*<\/button>/,'').replace(/<button class="btn grow" data-act="del\w+">[^<]*<\/button>/,'<span class="grow"></span>');else if(!isAdmin)foot=foot.replace(/<button class="btn grow" data-act="del\w+">[^<]*<\/button>/,'<span class="grow"></span>');if(cur&&cur.o&&(cur.o.files||[]).some(f=>f.path&&!URLS[f.path])){signFiles(cur.o.files).then(()=>{if(cur)rerender()})}$('#dTitle').textContent=title;$('#dBody').innerHTML=body;$('#dFoot').innerHTML=foot;$('#drawer').classList.add('on');$('#ov').classList.add('on');$('#dBody').scrollTop=0}
+function openDrawer(title,body,foot){if(!canWrite&&!(cur&&cur.type==='trf'&&canTrack()))foot=foot.replace(/<button class="btn pri" data-act="save\w+">[^<]*<\/button>/,'').replace(/<button class="btn grow" data-act="del\w+">[^<]*<\/button>/,'<span class="grow"></span>');else if(!isAdmin)foot=foot.replace(/<button class="btn grow" data-act="del\w+">[^<]*<\/button>/,'<span class="grow"></span>');if(cur&&cur.o&&(cur.o.files||[]).some(f=>f.path&&!URLS[f.path])){signFiles(cur.o.files).then(()=>{if(cur)rerender()})}$('#dTitle').textContent=title;$('#dBody').innerHTML=body;$('#dFoot').innerHTML=foot;$('#drawer').classList.add('on');$('#ov').classList.add('on');$('#dBody').scrollTop=0}
 function closeDrawer(){$('#drawer').classList.remove('on');$('#ov').classList.remove('on');cur=null}
 const inp=(k,l,v,t='text',cls='')=>`<label class="f ${cls}">${esc(l)}<input data-k="${k}" type="${t}" value="${esc(v??'')}" ${t==='text'&&/^(base|pct|km|amount|sub|disc|vat|price|terms|advance)$/.test(k)?'inputmode="decimal"':''}></label>`;
 const sel=(k,l,v,opts,cls='',blank=true)=>`<label class="f ${cls}">${esc(l)}<select data-k="${k}">${blank?'<option value=""></option>':''}${opts.map(o=>{const[val,txt]=Array.isArray(o)?o:[o,o];return`<option value="${esc(val)}" ${String(v??'')===String(val)?'selected':''}>${esc(txt)}</option>`}).join('')}</select></label>`;
@@ -442,7 +455,7 @@ function field([k,l,t,extra],r){const v=r[k];
  if(t&&t.startsWith('sel:'))return sel(k,l,v,LISTS[t.slice(4)]);
  if(t&&t.startsWith('list:'))return`<label class="f">${esc(l)}<input data-k="${k}" list="dl-${k}" value="${esc(v??'')}"><datalist id="dl-${k}">${(S.settings[t.slice(5)]||[]).map(x=>`<option value="${esc(x)}">`).join('')}</datalist></label>`;
  return inp(k,l,v)}
-function filesHTML(F,rm=true){rm=rm&&canWrite;return`<div class="files">${(F||[]).map((f,i)=>{const u=URLS[f.path]||'#';return`<div class="file">${/^image/.test(f.type||'')?`<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt=""></a>`:''}<div style="overflow:hidden"><a href="${esc(u)}" target="_blank" rel="noopener">${esc(f.name||'ficheiro')}</a>${f.size?`<div class="sub">${Math.round(f.size/1024)} KB</div>`:''}${rm?`<br><button class="btn link sm" data-act="rmFile" data-i="${i}">remover</button>`:''}</div></div>`}).join('')||'<span class="sub">Sem ficheiros.</span>'}</div>`}
+function filesHTML(F,rm=true){rm=rm&&(canWrite||(cur&&cur.type==='trf'&&canTrack()));return`<div class="files">${(F||[]).map((f,i)=>{const u=URLS[f.path]||'#';return`<div class="file">${/^image/.test(f.type||'')?`<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt=""></a>`:''}<div style="overflow:hidden"><a href="${esc(u)}" target="_blank" rel="noopener">${esc(f.name||'ficheiro')}</a>${f.size?`<div class="sub">${Math.round(f.size/1024)} KB</div>`:''}${rm?`<br><button class="btn link sm" data-act="rmFile" data-i="${i}">remover</button>`:''}</div></div>`}).join('')||'<span class="sub">Sem ficheiros.</span>'}</div>`}
 function readForm(o){for(const el of $('#dBody').querySelectorAll('[data-k]')){const k=el.dataset.k;o[k]=el.type==='checkbox'?el.checked:/^(base|pct|km|amount|sub|disc|vat|price|terms|advance|order)$/.test(k)&&el.value!==''?n(el.value):el.value}return o}
 
 /* record */
@@ -547,7 +560,7 @@ function openRate(id){const r=id?clone(S.rates.find(x=>x.id===id)):{pid:V.p,from
  `${id?'<button class="btn grow" data-act="delRate">Apagar</button>':'<span class="grow"></span>'}<button class="btn" data-act="close">Cancelar</button><button class="btn pri" data-act="saveRate">Guardar</button>`)}
 async function saveRate(){readForm(cur.o);const r=cur.o;r.item=String(r.item||'').trim().toUpperCase();r.route=String(r.route||'').trim().toUpperCase().replace(/\s+/g,'-');if(!r.item||!n(r.price))return toast('Item e preço são obrigatórios');
  try{await put('rates',r);log(r.pid,`Preço ${r.route} ${r.item} = ${mt(r.price)} desde ${dd(r.from)}`);closeDrawer()}catch(e){fail(e)}}
-function openSettings(){cur={type:'set',o:clone(S.settings)};openDrawer('Definições',`<div class="form">${ta('companies','Empresas do grupo (uma por linha)',(S.settings.companies||[]).join('\n'))}${ta('vehicles','Viaturas (uma matrícula por linha)',(S.settings.vehicles||[]).join('\n'))}</div>
+function openSettings(){cur={type:'set',o:clone(S.settings)};openDrawer('Definições',`<div class="ai"><p>Crie e gira os utilizadores: armazéns (Maputo, Beira, Nampula), leitura ou edição.</p><button class="btn sm pri" data-act="openUsers">Utilizadores</button></div><div class="form">${ta('companies','Empresas do grupo (uma por linha)',(S.settings.companies||[]).join('\n'))}${ta('vehicles','Viaturas (uma matrícula por linha)',(S.settings.vehicles||[]).join('\n'))}</div>
  ${storageHTML()}<p class="note">Os dados ficam no Supabase (Sistema RH Madi, tabelas próprias “prest_”). O plano gratuito não faz cópias automáticas: use “Exportar Excel” uma vez por semana.</p>`,`<span class="grow"></span><button class="btn" data-act="close">Cancelar</button><button class="btn pri" data-act="saveSet">Guardar</button>`)}
 async function saveSet(){const o={};for(const el of $('#dBody').querySelectorAll('[data-k]'))o[el.dataset.k]=el.value.split('\n').map(s=>s.trim()).filter(Boolean);try{const {error}=await sb.from('prest_settings').upsert({id:1,companies:o.companies||[],vehicles:o.vehicles||[],updated_at:new Date().toISOString()});if(error)throw error;await loadSettings();render();closeDrawer();toast('Guardado')}catch(e){fail(e)}}
 function storageHTML(){const all=[...S.records,...S.invoices,...S.payments,...S.providers].flatMap(x=>x.files||[]);const by=all.reduce((s,f)=>s+(f.size||0),0),mb=by/1048576,pc=Math.min(100,mb/1024*100);
@@ -555,17 +568,18 @@ function storageHTML(){const all=[...S.records,...S.invoices,...S.payments,...S.
 function newMenu(){const p=V.p!=='painel'?prov(V.p):null;openDrawer('Novo registo',`<div class="kpis">${[['newRec',p?`+ ${cat(p.id).noun}`:'+ Movimento (talão, projeto, reparação…)'],['newInv','+ Fatura / extrato'],['newPay','+ Pagamento'],['newProv','+ Prestador']].map(([a,l])=>`<button class="kpi" style="cursor:pointer;text-align:left;font-weight:600" data-act="${a}">${esc(l)}</button>`).join('')}</div>`,'<span class="grow"></span><button class="btn" data-act="close">Fechar</button>')}
 
 /* deletes */
+async function delTrf(){if(!await ask('Apagar este documento? Não pode ser desfeito.','Apagar'))return;try{const {error}=await sb.from('prest_transfers').delete().eq('id',cur.o.id);if(error)throw error;await loadTransfers();closeDrawer();toast('Apagado')}catch(e){fail(e)}}
 async function del(col,id,what){if(!isAdmin)return toast('Só o administrador pode apagar');if(!await ask(`Apagar ${what}? Não pode ser desfeito.`,'Apagar'))return;try{const pid=cur?.o?.pid;await remove(col,id);if(col==='invoices')await loadKey('records');if(col==='invoices'||col==='payments')await loadKey('payments');log(pid,`Apagou ${what}`);closeDrawer();toast('Apagado')}catch(e){fail(e)}}
 
 /* files */
 let fileTarget=null;
 async function compress(f){if(!/^image\//.test(f.type)||f.type==='image/gif')return f;try{const bmp=await createImageBitmap(f);const k=Math.min(1,1600/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
  const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.72));return b&&b.size<f.size?new File([b],f.name.replace(/\.\w+$/,'')+'.jpg',{type:'image/jpeg'}):f}catch{return f}}
-async function onFiles(files){if(!canWrite)return toast('Sem permissão');for(const f0 of files){try{if(!/^image\/|application\/pdf/.test(f0.type))throw new Error('só imagens ou PDF');toast('A preparar '+f0.name+'…');const f=await compress(f0);if(f.size>8*1024*1024)throw new Error('ficheiro acima de 8 MB');
- const path=`${cur.o.pid||'geral'}/${today().slice(0,7)}/${crypto.randomUUID()}${f.type==='application/pdf'?'.pdf':'.jpg'}`;const {error}=await sb.storage.from(BUCKET).upload(path,f,{contentType:f.type,upsert:false});if(error)throw error;
+async function onFiles(files){if(!canWrite&&!(cur.type==='trf'&&canTrack()))return toast('Sem permissão');for(const f0 of files){try{if(!/^image\/|application\/pdf/.test(f0.type))throw new Error('só imagens ou PDF');toast('A preparar '+f0.name+'…');const f=await compress(f0);if(f.size>8*1024*1024)throw new Error('ficheiro acima de 8 MB');
+ const path=`${cur.type==='trf'?'transfers':(cur.o.pid||'geral')}/${today().slice(0,7)}/${crypto.randomUUID()}${f.type==='application/pdf'?'.pdf':'.jpg'}`;const {error}=await sb.storage.from(BUCKET).upload(path,f,{contentType:f.type,upsert:false});if(error)throw error;
  (cur.o.files=cur.o.files||[]).push({path,name:f0.name,type:f.type,size:f.size});toast(`Anexado (${Math.round(f.size/1024)} KB)`)}catch(e){toast('Falhou: '+(e.message||e))}}await signFiles(cur.o.files);rerender()}
 const URLS={};async function signFiles(F){const need=(F||[]).filter(f=>f.path&&!URLS[f.path]).map(f=>f.path);if(!need.length)return;const {data}=await sb.storage.from(BUCKET).createSignedUrls(need,3600*6);(data||[]).forEach(x=>{if(x.signedUrl)URLS[x.path]=x.signedUrl})}
-function rerender(){if(!cur)return;if(cur.type==='rec')refreshRec();else if(cur.type==='inv')refreshInv();else if(cur.type==='prov'||cur.type==='pay'){readForm(cur.o);repaint(cur.type==='prov'?provForm():payForm())}}
+function rerender(){if(!cur)return;if(cur.type==='trf'){refreshTr();return}if(cur.type==='rec')refreshRec();else if(cur.type==='inv')refreshInv();else if(cur.type==='prov'||cur.type==='pay'){readForm(cur.o);repaint(cur.type==='prov'?provForm():payForm())}}
 
 /* invoice check by pasted lines (free, no AI) */
 function parsePasted(txt){const out=[];for(const raw of txt.split(/\r?\n/)){const line=raw.trim();if(!line)continue;const cells=line.split(/\t|;|\s{2,}/).map(c=>c.trim()).filter(Boolean);
@@ -596,11 +610,106 @@ function exportAll(){const P=V.p!=='painel'?[V.p]:S.providers.map(p=>p.id),f=x=>
  ['Movimentos',S.records.filter(f).sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(r=>({Data:r.date,Prestador:prov(r.pid).name,Empresa:r.company||'',Talão:r.slip||'',Ref:r.ref||r.quote||'',Origem:r.origin||'',Destino:r.dest||'',Viatura:r.vehicle||'',Descrição:r.title||(r.lines||[]).map(l=>`${l.q||''} ${l.item||l.d||''}`).join('; '),Valor:n(r.total),Tabela:expected(r)??'',Estado:r.status||'',Fatura:(S.invoices.find(i=>i.id===r.invId)||{}).no||'',Pagamento:recFin(r),CHECK:r.check?'CHECK':'',Notas:r.notes||''}))],
  ['Faturas',S.invoices.filter(f).map(i=>({Prestador:prov(i.pid).name,Nº:i.no,Data:i.date,Vencimento:i.due||'',Empresa:i.company||'',Subtotal:n(i.sub),Desconto:n(i.disc),'IVA %':n(i.vat),Total:invTotal(i),Pago:invPaid(i),Saldo:Math.round((invTotal(i)-invPaid(i))*100)/100,Estado:invStatus(i)}))],
  ['Pagamentos',S.payments.filter(f).map(p=>({Data:p.date,Prestador:prov(p.pid).name,Fatura:(S.invoices.find(i=>i.id===p.invId)||{}).no||'por conta',Valor:n(p.amount),Método:p.method||'',Referência:p.ref||'',Empresa:p.company||''}))],
+ ['Transferências',S.transfers.filter(f).map(t=>{const R=trRecs(t),x=tfin(t);return{Data:t.date,Tipo:t.doc_type,'Nº doc':t.doc_no||'',Origem:t.origin,Destino:t.dest,Fornecedor:t.supplier||'',Cliente:t.client||'',Mercadoria:(t.lines||[]).map(l=>`${l.q} ${l.d}`).join('; '),Qtd:trSent(t),'Talões':(t.slips||[]).join(', '),Estado:t.status,'Chegada':t.received_at||'','Qtd recebida':t.received_qty??'','Valor doc.':x.doc_amount??'',Frete:R.reduce((a,r)=>a+n(r.total),0),'Conferência':x.match,'Notas conf.':x.match_notes||'',Notas:t.notes||''}})],
  ['Preços',S.rates.filter(f).map(r=>({Prestador:prov(r.pid).name,Rota:r.route||'',Item:r.item,Unidade:r.per||'',Preço:n(r.price),'Válido desde':r.from}))]])}
 function exportCC(){const p=prov(V.p);save(`Extrato_${p.name.replace(/\W+/g,'_')}_${today()}.xlsx`,[['Conta corrente',ccRows(V.p).map(e=>({Data:e.d,Movimento:e.t,Débito:e.db||'',Crédito:e.cr||'',Saldo:Math.round(e.s*100)/100}))]])}
 
 function fail(e){const m=e?.message||e?.code||String(e);toast(/row-level|permission|policy/i.test(m)?'Sem permissão para esta ação':'Erro: '+m)}
 
+
+/* ---------- Transfers: our documents (PHC) vs carrier slips ---------- */
+const TR_PLACES=['MAPUTO','BEIRA','NAMPULA'],TR_TYPES=['Transferência','N/Factura','V/Factura','N/VD','V/VD','Contentor'],TR_ST=['A preparar','A caminho','Chegou','Problema'],MATCH=['Pendente','Confirmado','Não confere'];
+const TRACK_FROM='2026-11-24';
+const isWH=()=>ME.role==='warehouse';
+const trSent=t=>(t.lines||[]).reduce((s,l)=>s+n(l.q),0);
+const slipKeys=t=>new Set((t.slips||[]).map(x=>String(x).trim().toUpperCase()).filter(Boolean));
+function trRecs(t){const k=slipKeys(t);return k.size?S.records.filter(r=>r.pid===t.pid&&(k.has(String(r.slip||'').toUpperCase())||k.has(String(r.ref||'').toUpperCase()))):[]}
+function recTransfer(r){const k=[r.slip,r.ref].filter(Boolean).map(x=>String(x).toUpperCase());return k.length?S.transfers.find(t=>t.pid===r.pid&&(t.slips||[]).some(s=>k.includes(String(s).trim().toUpperCase()))):null}
+const tfin=t=>S.tfin[t.id]||{match:'Pendente'};
+const cap=s=>s?s[0]+s.slice(1).toLowerCase():'';
+function pillTr(s){return`<span class="pill ${s==='Problema'?'p-bad':s==='Chegou'?'p-ok':s==='A caminho'?'p-info':''}">${esc(s)}</span>`}
+function pillMatch(m){return`<span class="pill ${m==='Confirmado'?'p-ok':m==='Não confere'?'p-bad':'p-warn'}">${esc(m)}</span>`}
+function trAlerts(pid){const A=[];for(const t of S.transfers.filter(x=>!pid||x.pid===pid)){const lab=`${t.doc_type} ${t.doc_no||''}`.trim(),nm=`${cap(t.origin)} → ${cap(t.dest)}`;
+ if(t.status==='A caminho'&&days(t.date)>7)A.push({sev:'warn',t:`${nm}: ${lab} em trânsito há ${days(t.date)} dias — confirmar chegada`,open:['trf',t.id],pid:t.pid});
+ if(t.status==='Problema')A.push({sev:'bad',t:`${nm}: ${lab} marcado com problema`,open:['trf',t.id],pid:t.pid});
+ if(t.received_qty!=null&&t.received_qty!==''&&trSent(t)&&n(t.received_qty)!==trSent(t))A.push({sev:'bad',t:`${nm}: ${lab} — enviado ${trSent(t)}, recebido ${n(t.received_qty)}`,open:['trf',t.id],pid:t.pid});
+ if(!isWH()&&tfin(t).match==='Não confere')A.push({sev:'bad',t:`${nm}: ${lab} não confere com o transportador`,open:['trf',t.id],pid:t.pid})}
+ if(!isWH())for(const r of S.records.filter(x=>(!pid||x.pid===pid)&&prov(x.pid).cat==='transporte'&&(x.date||'')>=TRACK_FROM))if(!recTransfer(r))A.push({sev:'info',t:`${prov(r.pid).name}: talão ${r.slip||r.ref||dd(r.date)} sem documento nosso ligado`,open:['rec',r.id],pid:r.pid});
+ return A}
+
+function tabTrf(pid){const wh=isWH();let T=S.transfers.filter(t=>t.pid===pid);const q=$('#q').value.trim().toLowerCase();
+ if(wh&&V.mine!=='0'&&ME.loc)T=T.filter(t=>t.origin===ME.loc||t.dest===ME.loc);
+ if(V.ts)T=T.filter(t=>t.status===V.ts);if(V.tm&&!wh)T=T.filter(t=>tfin(t).match===V.tm);if(V.fm)T=T.filter(t=>(t.date||'').startsWith(V.fm));if(q)T=T.filter(t=>JSON.stringify(t).toLowerCase().includes(q));
+ T.sort((a,b)=>(b.date||'').localeCompare(a.date||''));const months=[...new Set(S.transfers.filter(t=>t.pid===pid).map(t=>(t.date||'').slice(0,7)))].sort().reverse();
+ const tot=T.reduce((s,t)=>s+n(tfin(t).doc_amount),0),fr=T.reduce((s,t)=>s+trRecs(t).reduce((a,r)=>a+n(r.total),0),0);
+ return`<div class="filters">${wh&&ME.loc?`<select data-f="mine"><option value="1" ${V.mine!=='0'?'selected':''}>Só ${esc(cap(ME.loc))}</option><option value="0" ${V.mine==='0'?'selected':''}>Todos os armazéns</option></select>`:''}
+ <select data-f="ts"><option value="">Estado: todos</option>${TR_ST.map(s=>`<option ${V.ts===s?'selected':''}>${esc(s)}</option>`).join('')}</select>
+ ${wh?'':`<select data-f="tm"><option value="">Conferência: todos</option>${MATCH.map(s=>`<option ${V.tm===s?'selected':''}>${esc(s)}</option>`).join('')}</select>`}
+ <select data-f="fm"><option value="">Mês: todos</option>${months.map(m=>`<option ${V.fm===m?'selected':''}>${m}</option>`).join('')}</select>
+ <span class="sub" style="align-self:center">${T.length} documentos${wh?'':` · documentos ${mt0(tot)} · frete ${mt0(fr)}`}</span>${canTrack()?`<button class="btn sm pri" data-act="newTrf" style="margin-left:auto">+ Transferência</button>`:''}</div>
+ ${T.length?`<div class="scroll"><table class="stack"><thead><tr><th>Data</th><th>Documento</th><th>Rota</th><th>Mercadoria</th><th>Talões do transportador</th><th>Chegada</th>${wh?'':'<th class="num">Valor doc.</th><th class="num">Frete</th><th>Conferência</th>'}</tr></thead><tbody>
+ ${T.map(t=>{const R=trRecs(t),fr=R.reduce((a,r)=>a+n(r.total),0),f=tfin(t),diff=t.received_qty!=null&&t.received_qty!==''&&n(t.received_qty)!==trSent(t);
+  const keys=[...slipKeys(t)];return`<tr class="click" data-open="trf:${t.id}"><td>${dd(t.date)}</td><td><b>${esc(t.doc_no||'—')}</b><div class="sub">${esc(t.doc_type)}</div></td><td>${esc(cap(t.origin))} → ${esc(cap(t.dest))}</td>
+  <td>${esc((t.lines||[]).map(l=>`${l.q} ${l.d}`).join(', '))}${t.supplier?`<div class="sub">${esc(t.supplier)}</div>`:''}</td>
+  <td>${keys.length?keys.map(k=>wh?esc(k):`<span class="${R.some(r=>[r.slip,r.ref].map(x=>String(x||'').toUpperCase()).includes(k))?'ok':'sub'}">${esc(k)}</span>`).join(', '):'<span class="sub">—</span>'}</td>
+  <td>${pillTr(t.status)}${t.received_at?`<div class="sub">${dd(t.received_at)}${diff?` · <span class="diff">${n(t.received_qty)} de ${trSent(t)}</span>`:''}</div>`:''}</td>
+  ${wh?'':`<td class="num">${f.doc_amount!=null&&f.doc_amount!==''?mt0(f.doc_amount):'—'}</td><td class="num">${fr?mt0(fr):'—'}${fr&&n(f.doc_amount)?`<div class="sub">${(fr/n(f.doc_amount)*100).toFixed(1)}%</div>`:''}</td><td>${pillMatch(f.match)}${f.match_notes?`<div class="sub">${esc(f.match_notes.slice(0,40))}</div>`:''}</td>`}</tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Sem documentos ainda. Use “+ Transferência” para registar cada envio entre armazéns.</div>'}`}
+const canTrack=()=>['admin','editor','warehouse'].includes(ME.role);
+
+function trForm(){const t=cur.o,wh=isWH(),f=cur.fin,R=wh?[]:trRecs(t),fr=R.reduce((a,r)=>a+n(r.total),0),sent=trSent(t),rq=R.reduce((a,r)=>a+(r.lines||[]).reduce((s,l)=>s+(l.item==='ESTRADA'||/estrada/i.test(l.d||'')?0:n(l.q)),0),0);
+ const keys=[...slipKeys(t)];
+ return`<div class="sec">Estado</div><div class="steps">${TR_ST.map((s,i)=>`<button class="step ${s===t.status?'on':''} ${TR_ST.indexOf(t.status)>i&&s!=='Problema'?'done':''} ${s==='Problema'?'bad':''}" data-act="trSt" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+ ${(t.history||[]).length?`<ol class="hist">${t.history.map(h=>`<li>${esc(h.s)} — ${dd(h.at)} ${String(h.at||'').slice(11,16)}${h.by?' · '+esc(h.by):''}</li>`).join('')}</ol>`:''}
+ <div class="sec">Documento</div><div class="form">${inp('date','Data',t.date,'date')}${sel('doc_type','Tipo de documento',t.doc_type,TR_TYPES,'',false)}${inp('doc_no','Nº do documento (PHC)',t.doc_no)}
+ ${sel('origin','Origem',t.origin,TR_PLACES.map(p=>[p,cap(p)]),'',false)}${sel('dest','Destino',t.dest,TR_PLACES.map(p=>[p,cap(p)]),'',false)}
+ ${inp('supplier','Fornecedor / marca',t.supplier)}${inp('client','Cliente',t.client)}
+ <label class="f full">Talões do transportador (NR/ENTRADA ou referência, separados por vírgula)<input data-k="slips_txt" value="${esc((t.slips||[]).join(', '))}" placeholder="ex.: 1002025, 1002026"></label></div>
+ ${!wh&&keys.length?`<div class="note">${keys.map(k=>{const r=R.find(r=>[r.slip,r.ref].map(x=>String(x||'').toUpperCase()).includes(k));const i=r&&S.invoices.find(x=>x.id===r.invId);return r?`<span class="ok">✓ ${esc(k)}</span> ${dd(r.date)} · ${esc(r.origin||'')}→${esc(r.dest||'')} · ${esc((r.lines||[]).map(l=>`${l.q} ${l.d}`).join(', '))} · ${mt0(r.total)}${i?` · fatura ${esc(i.no)}`:' · não faturado'}`:`<span class="diff">✗ ${esc(k)}</span> ainda não registado pelo transportador`}).join('<br>')}</div>`:''}
+ <div class="sec">Mercadoria enviada<span class="sub">Total ${sent}</span></div>
+ <div class="scroll"><table class="lines"><tbody>${(t.lines||[]).map((l,i)=>`<tr><td style="width:65%"><input data-l="${i}" data-lk="d" value="${esc(l.d||'')}" placeholder="ex.: cx/bolachas"></td><td><input data-l="${i}" data-lk="q" inputmode="decimal" value="${esc(l.q??'')}" placeholder="qtd"></td><td><button class="btn link sm" data-act="trRmLine" data-i="${i}">×</button></td></tr>`).join('')}</tbody></table></div><button class="btn sm" data-act="trAddLine">+ Linha</button>
+ <div class="sec">Receção no destino</div><div class="form">${inp('received_at','Data de chegada',t.received_at,'date')}${inp('received_qty','Quantidade recebida',t.received_qty)}${inp('received_by','Recebido por',t.received_by)}
+ <label class="f full">Observações da receção (faltas, danos…)<textarea data-k="received_notes">${esc(t.received_notes||'')}</textarea></label></div>
+ ${t.received_qty!=null&&t.received_qty!==''&&sent&&n(t.received_qty)!==sent?`<p class="diff">Enviado ${sent} · recebido ${n(t.received_qty)} · diferença ${n(t.received_qty)-sent}</p>`:''}
+ ${wh?'':`<div class="sec">Conferência (só administração)</div><div class="form">${inp('_doc_amount','Valor do documento (MT)',f.doc_amount)}${sel('_match','Conferência',f.match||'Pendente',MATCH,'',false)}
+ <label class="f full">Notas da conferência<textarea data-k="_match_notes">${esc(f.match_notes||'')}</textarea></label></div>
+ <div class="tot"><span>Frete cobrado: ${mt(fr)}</span>${n(f.doc_amount)&&fr?`<span>${(fr/n(f.doc_amount)*100).toFixed(2)}% do documento</span>`:''}${keys.length&&rq?`<span class="${rq!==sent?'diff':'ok'}">Qtd no talão ${rq} · no documento ${sent}</span>`:''}</div>`}
+ <div class="sec">Ficheiros (talão, documento PHC assinado)<button class="btn sm" data-act="addFile">+ Anexar</button></div>${filesHTML(t.files)}
+ <div class="form" style="margin-top:14px">${ta('notes','Notas',t.notes)}</div>`}
+function openTrf(id){const t=id?clone(S.transfers.find(x=>x.id===id)):{pid:V.p!=='painel'&&prov(V.p).cat==='transporte'?V.p:(S.providers.find(p=>p.cat==='transporte')||{}).id,date:today(),doc_type:'Transferência',origin:ME.loc||'MAPUTO',dest:ME.loc==='MAPUTO'||!ME.loc?'NAMPULA':'MAPUTO',client:'Casa Perfumaria',status:'A caminho',lines:[{}],slips:[],files:[],history:[]};if(!t)return;
+ cur={type:'trf',o:t,fin:clone(S.tfin[t.id]||{match:'Pendente'})};
+ openDrawer((id?'':'Nova · ')+'Transferência'+(t.doc_no?' '+t.doc_no:''),trForm(),`${id&&isAdmin?'<button class="btn grow" data-act="delTrf">Apagar</button>':'<span class="grow"></span>'}<button class="btn" data-act="close">Cancelar</button>${canTrack()?'<button class="btn pri" data-act="saveTrf">Guardar</button>':''}`)}
+function readTr(){const t=cur.o;for(const el of $('#dBody').querySelectorAll('[data-k]')){const k=el.dataset.k,v=el.value;if(k==='slips_txt')t.slips=v.split(/[,;\s]+/).map(s=>s.trim()).filter(Boolean);else if(k.startsWith('_'))cur.fin[k.slice(1)]=k==='_doc_amount'?(v===''?null:n(v)):v;else t[k]=k==='received_qty'?(v===''?null:n(v)):v}
+ for(const el of $('#dBody').querySelectorAll('[data-l]')){const l=t.lines[+el.dataset.l];if(l)l[el.dataset.lk]=el.dataset.lk==='q'?(el.value===''?'':n(el.value)):el.value}}
+function refreshTr(){readTr();repaint(trForm())}
+async function saveTrf(){readTr();const t=cur.o;t.lines=(t.lines||[]).filter(l=>l.d||n(l.q));if(t.origin===t.dest)return toast('Origem e destino iguais');
+ if(t.status==='Chegou'&&!t.received_at)t.received_at=today();if(t.status==='Chegou'&&!t.received_by)t.received_by=ME.nome;
+ const old=t.id&&S.transfers.find(x=>x.id===t.id);const now=new Date().toISOString();
+ if(!old)t.history=[{s:'Registado',at:now,by:ME.nome},...(t.status!=='A preparar'?[{s:t.status,at:now,by:ME.nome}]:[])];else if(old.status!==t.status)t.history=[...(t.history||[]),{s:t.status,at:now,by:ME.nome}];
+ if(old&&n(old.received_qty)!==n(t.received_qty)&&t.received_qty!=null)t.history=[...t.history,{s:`Recebido ${t.received_qty}`,at:now,by:ME.nome}];
+ const dup=S.transfers.find(x=>x.id!==t.id&&t.doc_no&&x.doc_no&&x.doc_type===t.doc_type&&String(x.doc_no).trim()===String(t.doc_no).trim());if(dup&&!await ask(`O documento ${t.doc_type} ${t.doc_no} já está registado (${dd(dup.date)}). Guardar mesmo assim?`,'Guardar'))return;
+ try{if(!t.id)t.id=crypto.randomUUID();const row={id:t.id,pid:t.pid,date:t.date,doc_type:t.doc_type,doc_no:nz(t.doc_no),origin:t.origin,dest:t.dest,supplier:nz(t.supplier),client:nz(t.client),lines:t.lines,slips:t.slips||[],status:t.status,received_at:nz(t.received_at),received_qty:t.received_qty===''?null:t.received_qty,received_by:nz(t.received_by),received_notes:nz(t.received_notes),notes:nz(t.notes),files:t.files||[],history:t.history||[],updated_at:now};
+  if(!old)row.created_name=ME.nome;const {error}=await sb.from('prest_transfers').upsert(row);if(error)throw error;
+  if(!isWH()&&canWrite){const f=cur.fin;const {error:e2}=await sb.from('prest_transfer_fin').upsert({transfer_id:t.id,doc_amount:f.doc_amount??null,match:f.match||'Pendente',match_notes:nz(f.match_notes),updated_at:now});if(e2)throw e2}
+  await loadTransfers();log(t.pid,`${old?'Atualizou':'Registou'} ${t.doc_type} ${t.doc_no||''} ${cap(t.origin)}→${cap(t.dest)} · ${t.status}`);closeDrawer();toast('Guardado')}catch(e){fail(e)}}
+async function loadTransfers(){const {data,error}=await sb.from('prest_transfers').select('*').order('date',{ascending:false}).limit(5000);if(!error)S.transfers=data||[];
+ if(!isWH()){const r=await sb.from('prest_transfer_fin').select('*');S.tfin=Object.fromEntries((r.data||[]).map(x=>[x.transfer_id,{...x,doc_amount:x.doc_amount==null?null:+x.doc_amount}]))}render()}
+
+/* ---------- users (admin) ---------- */
+const USER_DOMAIN='users.madigroup.local';
+const ROLE_L={admin:'Administrador',editor:'Edição',viewer:'Só leitura',warehouse:'Armazém'};
+async function adm(body){const {data,error}=await sb.functions.invoke('prest-admin',{body});if(error){let m=error.message;try{const j=await error.context.json();m=j.error||m}catch{}throw new Error(m)}if(data&&data.error)throw new Error(data.error);return data}
+async function openUsers(){cur={type:'users',o:{},list:[]};openDrawer('Utilizadores',`<div class="empty">A carregar…</div>`,`<span class="grow"></span><button class="btn" data-act="close">Fechar</button>`);try{cur.list=(await adm({action:'list'})).users;repaint(usersForm())}catch(e){$('#dBody').innerHTML=`<div class="empty">${esc(e.message)}</div>`}}
+function usersForm(){const o=cur.o;return`<div class="scroll"><table class="stack"><thead><tr><th>Nome</th><th>Utilizador</th><th>Acesso</th><th>Armazém</th><th></th></tr></thead><tbody>${cur.list.map(u=>`<tr><td><b>${esc(u.nome)}</b></td><td>${esc(u.username||'(email)')}</td><td>${esc(ROLE_L[u.role]||u.role)}</td><td>${esc(cap(u.loc||''))}</td><td>${u.user_id===sessionUid?'':`<button class="btn link sm" data-act="uEdit" data-id="${u.user_id}">Editar</button>`}</td></tr>`).join('')}</tbody></table></div>
+ <div class="sec">${o.user_id?'Editar utilizador':'Novo utilizador'}</div><div class="form">${inp('_nome','Nome',o.nome)}${o.user_id?`<label class="f">Utilizador<input disabled value="${esc(o.username||'')}"></label>`:inp('_username','Utilizador (para entrar, ex.: ali.khalife)',o.username)}
+ ${sel('_role','Acesso',o.role||'warehouse',Object.entries(ROLE_L),'',false)}${(o.role||'warehouse')==='warehouse'?sel('_loc','Armazém',o.loc,TR_PLACES.map(p=>[p,cap(p)])):''}
+ <label class="f">${o.user_id?'Nova palavra-passe (deixe vazio para manter)':'Palavra-passe (mín. 6)'}<input data-k="_password" type="text" autocomplete="off" value=""></label></div>
+ <p class="note">Armazém: vê só as transferências do Imtiaz, sem nenhum valor. Só leitura: vê tudo mas não altera. Edição: regista e altera, não apaga. Estes acessos não dão entrada no Sistema RH.</p>
+ <div style="display:flex;gap:8px;flex-wrap:wrap">${o.user_id?'<button class="btn" data-act="uNew">Cancelar edição</button><button class="btn" data-act="uDel">Remover acesso</button>':''}<button class="btn pri" data-act="uSave">${o.user_id?'Guardar alterações':'Criar utilizador'}</button></div>`}
+function readU(){for(const el of $('#dBody').querySelectorAll('[data-k^="_"]'))cur.o[el.dataset.k.slice(1)]=el.value}
+async function uSave(){readU();const o=cur.o;try{if(o.user_id)await adm({action:'update',user_id:o.user_id,nome:o.nome,role:o.role,loc:o.loc,password:o.password||undefined});else await adm({action:'create',nome:o.nome,username:o.username,password:o.password,role:o.role||'warehouse',loc:o.loc});
+ toast(o.user_id?'Guardado':'Utilizador criado');cur.o={};cur.list=(await adm({action:'list'})).users;repaint(usersForm())}catch(e){toast('Erro: '+e.message)}}
+async function uDel(){if(!await ask(`Remover o acesso de ${cur.o.nome}?`,'Remover'))return;try{await adm({action:'remove',user_id:cur.o.user_id});cur.o={};cur.list=(await adm({action:'list'})).users;repaint(usersForm());toast('Removido')}catch(e){toast('Erro: '+e.message)}}
+let sessionUid='';
 
 /* ---------- Excel import (no typing) ---------- */
 const IMP_FIELDS=[['date','Data'],['slip','Talão / Nº'],['ref','Referência'],['route','Rota / destino'],['desc','Descrição'],['qty','Quantidade'],['price','Preço unitário'],['amount','Valor'],['vehicle','Viatura']];
@@ -676,20 +785,21 @@ async function fetchAll(t){let out=[],from=0;for(;;){const {data,error}=await sb
 async function loadKey(k){S[k]=(await fetchAll(TB[k])).map(fromRow[k]);if(k==='records')S.records.sort((a,b)=>(b.date||'').localeCompare(a.date||''))}
 async function loadLog(){const {data}=await sb.from('prest_log').select('*').order('at',{ascending:false}).limit(60);S.log=(data||[]).map(l=>({at:l.at,t:(l.user_name?l.user_name+': ':'')+l.txt}))}
 async function loadSettings(){const {data}=await sb.from('prest_settings').select('*').eq('id',1).maybeSingle();if(data)S.settings={...S.settings,companies:data.companies||[],vehicles:data.vehicles||[]}}
-async function loadAll(){await Promise.all([...Object.keys(TB).map(loadKey),loadLog(),loadSettings()]);loaded=true;render()}
+async function loadAll(){if(isWH())await loadKey('providers'),V.p=(S.providers.find(p=>p.cat==='transporte')||{id:'aca'}).id;await Promise.all([...(isWH()?['providers']:Object.keys(TB)).map(loadKey),isWH()?null:loadLog(),loadSettings(),loadTransfers()]);loaded=true;render()}
 async function put(k,o){if(!canWrite)throw new Error('Sem permissão para gravar');if(!o.id)o.id=crypto.randomUUID();const {error}=await sb.from(TB[k]).upsert(toRow[k](o));if(error)throw error;
  const i=S[k].findIndex(x=>x.id===o.id);const v=fromRow[k](toRow[k](o));if(i>=0)S[k][i]=v;else S[k].push(v);render();return o.id}
 async function patch(k,id,obj){const {error}=await sb.from(TB[k]).update(obj).eq('id',id);if(error)throw error}
 async function remove(k,id){const {error}=await sb.from(TB[k]).delete().eq('id',id);if(error)throw error;S[k]=S[k].filter(x=>x.id!==id);render()}
 const log=(pid,t)=>sb.from('prest_log').insert({pid:pid||null,txt:t,user_name:ME.nome}).then(()=>loadLog().then(render)).catch(()=>{});
-let rtTimer={};function live(){const ch=sb.channel('prest-live');for(const[k,t]of Object.entries(TB))ch.on('postgres_changes',{event:'*',schema:'public',table:t},()=>{clearTimeout(rtTimer[k]);rtTimer[k]=setTimeout(()=>loadKey(k).then(render),600)});
+let rtTimer={};function live(){const ch=sb.channel('prest-live');for(const[k,t]of Object.entries(TB).filter(([k])=>!isWH()||k==='providers'))ch.on('postgres_changes',{event:'*',schema:'public',table:t},()=>{clearTimeout(rtTimer[k]);rtTimer[k]=setTimeout(()=>loadKey(k).then(render),600)});
+ for(const t of ['prest_transfers','prest_transfer_fin'])ch.on('postgres_changes',{event:'*',schema:'public',table:t},()=>{clearTimeout(rtTimer.tr);rtTimer.tr=setTimeout(loadTransfers,600)});
  ch.on('postgres_changes',{event:'*',schema:'public',table:'prest_settings'},()=>loadSettings().then(render)).subscribe()}
 
 /* ---------- events ---------- */
 document.addEventListener('click',async e=>{const t=e.target.closest('[data-go],[data-tab],[data-open],[data-act]');if(!t)return;
  if(t.dataset.go){V.p=t.dataset.go;V.tab='mov';V.fs=V.ff=V.fm='';$('#q').value='';draw();scrollTo(0,0);return}
  if(t.dataset.tab){V.tab=t.dataset.tab;draw();return}
- if(t.dataset.open){const[k,id]=t.dataset.open.split(':');if(k==='rec')openRec(id);if(k==='inv')openInv(id);if(k==='pay')openPay(id);return}
+ if(t.dataset.open){const[k,id]=t.dataset.open.split(':');if(k==='rec')openRec(id);if(k==='inv')openInv(id);if(k==='pay')openPay(id);if(k==='trf')openTrf(id);return}
  const a=t.dataset.act;
  ({close:closeDrawer,newRec:()=>openRec(null,V.p!=='painel'?V.p:null),newInv:()=>openInv(null),newPay:()=>openPay(null),newProv:()=>openProv(null),editProv:()=>openProv(V.p),
   newRate:()=>openRate(null),editRate:()=>openRate(t.dataset.id),saveRate,delRate:()=>del('rates',cur.o.id,'este preço'),saveProv,saveSet,
@@ -703,7 +813,7 @@ document.addEventListener('click',async e=>{const t=e.target.closest('[data-go],
   runPaste:async()=>{const txt=$('#pasteBox').value.trim();if(!txt)return;try{await checkInvoice({text:txt})}catch(err){toast('Erro: '+(err.message||err))}},
   selAll:()=>{readForm(cur.o);for(const r of S.records.filter(r=>r.pid===cur.o.pid&&!r.invId))cur.sel.add(r.id);refreshInv()},
   useSum:()=>{readForm(cur.o);cur.o.sub=Math.round(S.records.filter(r=>cur.sel.has(r.id)).reduce((s,r)=>s+n(r.total),0)*100)/100;refreshInv()},
-  payThis:()=>openPay(null,cur.o.pid,cur.o.id),openImport,pickXls:()=>$('#xlsIn').click(),runImport,setLang:()=>{try{localStorage.setItem('pp_lang',t.dataset.l)}catch{}location.reload()},expCC:exportCC
+  payThis:()=>openPay(null,cur.o.pid,cur.o.id),newTrf:()=>openTrf(null),saveTrf,delTrf:()=>delTrf(),trSt:()=>{readTr();cur.o.status=t.dataset.s;repaint(trForm())},trAddLine:()=>{readTr();cur.o.lines.push({});repaint(trForm())},trRmLine:()=>{readTr();cur.o.lines.splice(+t.dataset.i,1);repaint(trForm())},openUsers,uSave,uDel,uNew:()=>{cur.o={};repaint(usersForm())},uEdit:()=>{cur.o={...cur.list.find(u=>u.user_id===t.dataset.id)};repaint(usersForm())},openImport,pickXls:()=>$('#xlsIn').click(),runImport,setLang:()=>{try{localStorage.setItem('pp_lang',t.dataset.l)}catch{}location.reload()},expCC:exportCC
  }[a]||(()=>{}))()});
 document.addEventListener('change',e=>later(()=>onChange(e)));
 function onChange(e){const t=e.target;if(!t.isConnected&&!t.dataset.f)return;
@@ -711,6 +821,8 @@ function onChange(e){const t=e.target;if(!t.isConnected&&!t.dataset.f)return;
  if(t.dataset.pick){cur.sel[t.checked?'add':'delete'](t.dataset.pick);refreshInv();return}
  if(!cur)return;
  if(cur.type==='imp'&&t.dataset.k&&t.dataset.k.startsWith('_')){impRead();repaint(impForm());return}
+ if(cur.type==='trf'){refreshTr();return}
+ if(cur.type==='users'&&t.dataset.k==='_role'){readU();repaint(usersForm());return}
  if(cur.type==='rec'&&(t.dataset.lk==='item'||['origin','dest','date','pid'].includes(t.dataset.k))){readLines();readForm(cur.o);if(t.dataset.lk==='item'){const l=cur.o.lines[+t.dataset.l];const r=rateFor(cur.o.pid,routeOf(cur.o),l.item,cur.o.date);if(r)l.p=r.price;if(r&&r.per==='viagem'&&!l.q)l.q=1}refreshRec();return}
  if(cur.type==='rec'&&(t.dataset.lk==='q'||t.dataset.lk==='p'||['base','pct','province'].includes(t.dataset.k))){readLines();readForm(cur.o);if(t.dataset.k==='province'){const m=String(prov(cur.o.pid).pcts||'').split('\n').map(s=>s.split('=')).find(([a])=>a&&a.trim().toLowerCase()===String(cur.o.province).toLowerCase());if(m)cur.o.pct=n(m[1])}refreshRec();return}
  if(cur.type==='rec'&&t.dataset.lk==='d'){readLines();const l=cur.o.lines[+t.dataset.l];if(l&&!l.p){const last=S.records.filter(x=>x.pid===cur.o.pid).sort((a,b)=>(b.date||'').localeCompare(a.date||'')).flatMap(x=>x.lines||[]).find(x=>x.d===l.d&&n(x.p));if(last){l.p=last.p;refreshRec()}}return}
@@ -726,13 +838,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#drawer').classL
 
 /* ---------- boot ---------- */
 function showLogin(err){$('#login').style.display='flex';$('#lg_err').textContent=err||''}
-async function start(session){const {data,error}=await sb.from('prest_users').select('nome,role').eq('user_id',session.user.id).maybeSingle();
+async function start(session){sessionUid=session.user.id;const {data,error}=await sb.from('prest_users').select('nome,role,loc').eq('user_id',session.user.id).maybeSingle();
  if(error||!data){await sb.auth.signOut();return showLogin(error?'Sem ligação: '+error.message:'Esta conta não tem acesso ao sistema de Prestadores.')}
- ME=data;canWrite=['admin','editor'].includes(ME.role);isAdmin=ME.role==='admin';$('#who').textContent=`${ME.nome} · ${{admin:'Administrador',editor:'Edição',viewer:'Só leitura'}[ME.role]}`;
+ ME=data;canWrite=['admin','editor'].includes(ME.role);isAdmin=ME.role==='admin';$('#who').textContent=`${ME.nome} · ${{admin:'Administrador',editor:'Edição',viewer:'Só leitura',warehouse:'Armazém'}[ME.role]}`;
  if(!canWrite)$('#newBtn').style.display='none';if(!isAdmin)$('#setBtn').style.display='none';
+ if(isWH()){$('#expBtn').style.display='none';$('#newBtn').style.display='';$('#newBtn').onclick=()=>openTrf(null);V.p=(S.providers.find(p=>p.cat==='transporte')||{id:'aca'}).id;V.tab='trf';$('#who').textContent=`${ME.nome} · Armazém ${cap(ME.loc||'')}`}
  $('#login').style.display='none';draw();try{await loadAll();live()}catch(e){loaded=true;$('#main').innerHTML=`<div class="empty">Erro ao carregar: ${esc(e.message||e)}</div>`}}
 $('#lgf').addEventListener('submit',async e=>{e.preventDefault();const b=$('#lg_b');b.disabled=true;$('#lg_err').textContent='';
- const {data,error}=await sb.auth.signInWithPassword({email:$('#lg_e').value.trim(),password:$('#lg_p').value});b.disabled=false;
+ let em=$('#lg_e').value.trim().toLowerCase();if(!em.includes('@'))em=em.replace(/\s+/g,'.')+'@'+USER_DOMAIN;const {data,error}=await sb.auth.signInWithPassword({email:em,password:$('#lg_p').value});b.disabled=false;
  if(error)return showLogin(/invalid/i.test(error.message)?'Email ou palavra-passe errados':error.message);start(data.session)});
 sb.auth.getSession().then(({data})=>data.session?start(data.session):showLogin());
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&loaded)loadAll()});
